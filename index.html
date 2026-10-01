@@ -1,0 +1,1474 @@
+<!doctype html>
+<html lang="ru"><head>
+<meta charset="utf-8">
+<title>Every Cent Counts</title>
+<!-- Приложение «Every Cent Counts»: разметка, стили и код страницы. Собирает render_deals_public.py
+     (подставляет __…__), раздел акций рисует deals_view.js, переводы — deals_i18n.js. -->
+<script>
+  // тема — до отрисовки, чтобы не мигало светлым
+  try { var th = localStorage.getItem("viennaDealsTheme"); if (th === "dark" || th === "light") document.documentElement.setAttribute("data-theme", th); } catch (e) {}
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Акции супермаркетов и дрогерий Вены, сверенные с самой низкой обычной ценой во всех сетях">
+<meta name="theme-color" content="#EDEBE6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#181816" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="Every Cent">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #EDEBE6; --ink: #141414; --muted: #6E6C66; --card-bg: #FFFFFF;
+    --line-soft: #D8D5CD; --row-line: #F1EFEA; --soft-bg: #FAF9F6; --ru: #8E8B84;
+    --shadow: rgba(20,20,20,0.14); --shadow-soft: rgba(20,20,20,0.09);
+    --chartreuse: #D6FF92; --good: #3E7B27; --good-bg: #F1F7EC; --bad: #B5541B; --bad-bg: #FBE9E1;
+    --cart-bg: #F6FBEF; --focus: #3A6FB8; --coin: #A87A12; --backdrop: rgba(20,20,20,0.38);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #181816; --ink: #ECEAE4; --muted: #A29F97; --card-bg: #24231F;
+      --line-soft: #3B3A35; --row-line: #2F2E2A; --soft-bg: #2A2925; --ru: #8C8981;
+      --shadow: rgba(0,0,0,0.45); --shadow-soft: rgba(0,0,0,0.35);
+      --good: #8FCB72; --good-bg: #223019; --bad: #F09A6A; --bad-bg: #3A2519; --cart-bg: #232E1B; --focus: #8DB4EC;
+      --coin: #E8C15A; --backdrop: rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #181816; --ink: #ECEAE4; --muted: #A29F97; --card-bg: #24231F;
+    --line-soft: #3B3A35; --row-line: #2F2E2A; --soft-bg: #2A2925; --ru: #8C8981;
+    --shadow: rgba(0,0,0,0.45); --shadow-soft: rgba(0,0,0,0.35);
+    --good: #8FCB72; --good-bg: #223019; --bad: #F09A6A; --bad-bg: #3A2519; --cart-bg: #232E1B; --focus: #8DB4EC;
+    --coin: #E8C15A; --backdrop: rgba(0,0,0,0.6);
+  }
+  :root[data-theme="light"] { color-scheme: light; }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }  /* в приложении нет обёртки артефакта — без этого .cart {grid} виден всегда */
+  body { background: var(--paper); color: var(--ink); font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 14px; margin: 0; padding-inline: 16px; padding-block: 0 calc(96px + env(safe-area-inset-bottom, 0px)); overflow-x: hidden; }
+  .wrap { max-width: 980px; margin: 18px auto 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .wrap > * { min-width: 0; }  /* широкая таблица не растягивает страницу на телефоне */
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .ic { display: block; flex: none; }
+
+  /* верхняя панель: раздел, «спасибо», отзыв, настройки, поиск — прилипает к верху */
+  .topbar { position: sticky; top: 0; z-index: 30; margin-inline: -16px; padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 8px;
+    background: var(--paper); box-shadow: 0 1px 0 var(--line-soft); }
+  .topbar-row { max-width: 980px; margin: 0 auto; display: flex; align-items: center; gap: 8px; }
+  .brand { flex: 1; min-width: 0; font-family: 'Lora', Georgia, serif; font-weight: 500; font-size: 20px; color: var(--ink);
+    text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .top-actions { display: flex; gap: 6px; flex: none; }
+  .icon-btn { width: 42px; height: 42px; display: grid; place-items: center; border: none; border-radius: 50%;
+    background: var(--card-bg); color: var(--ink); cursor: pointer; box-shadow: 0 1px 4px var(--shadow-soft); padding: 0; }
+  .icon-btn .ic { width: 21px; height: 21px; }
+  .icon-btn.coin { color: var(--coin); }
+  .icon-btn:hover { box-shadow: 0 3px 10px var(--shadow); }
+  .topbar .deals-search { position: static; max-width: 980px; margin: 8px auto 0; padding: 0; background: none; }
+
+  /* нижняя панель вкладок */
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 35; background: var(--card-bg);
+    box-shadow: 0 -1px 0 var(--line-soft), 0 -6px 18px var(--shadow-soft); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .tabbar-row { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .tab { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; min-height: 60px;
+    padding: 7px 2px 6px; color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 600; letter-spacing: 0.01em; }
+  .tab .pill { display: grid; place-items: center; width: 52px; height: 30px; border-radius: 15px; transition: background .15s; }
+  .tab.active { color: var(--ink); }
+  .tab.active .pill { background: var(--chartreuse); color: #141414; }
+  .tab[data-view="buy"] .pill { color: var(--good); }
+  .tab.active[data-view="buy"] .pill { color: #2E6B18; }
+  .tab .lbl { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tab .badge { position: absolute; top: 4px; left: calc(50% + 8px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+    background: var(--bad); color: #fff; font-size: 10.5px; font-weight: 700; line-height: 18px; text-align: center; }
+  .tab .badge:empty { display: none; }
+
+  /* главная: название, крупные кнопки разделов, отслеживаемое, коротко — как сравниваем */
+  h1 { font-family: 'Lora', Georgia, serif; font-weight: 500; letter-spacing: -0.01em; font-size: 32px; line-height: 1.1; margin: 0; text-wrap: balance; }
+  .sub { color: var(--muted); font-size: 13.5px; margin: 0; line-height: 1.45; }
+  .home { display: grid; gap: 14px; }
+  .home-nav { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .home-nav a { display: grid; gap: 4px; align-content: start; padding: 14px; border-radius: 12px; background: var(--card-bg); color: var(--ink);
+    text-decoration: none; box-shadow: 0 3px 10px var(--shadow-soft); min-height: 92px; }
+  .home-nav a:hover { box-shadow: 0 6px 16px var(--shadow); }
+  .home-nav .t { font-weight: 600; font-size: 15.5px; }
+  .home-nav .d { font-size: 12px; color: var(--muted); line-height: 1.35; }
+  .home-nav a.main { background: var(--chartreuse); color: #141414; }
+  .home-nav a.main .d { color: #3b3b33; }
+  .card { background: var(--card-bg); border-radius: 12px; padding: 12px 14px; box-shadow: 0 2px 6px var(--shadow-soft); }
+  .card h2 { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
+  .watch-list { list-style: none; margin: 0; padding: 0; }
+  .watch-list li + li { border-top: 1px solid var(--row-line); }
+  .watch-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; width: 100%; padding: 9px 0; border: none;
+    background: none; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+  .watch-row .w { font-weight: 600; font-size: 14px; }
+  .watch-row .n { font-size: 12px; font-weight: 600; color: var(--good); white-space: nowrap; align-self: center; }
+  .watch-row .n.none { color: var(--muted); font-weight: 500; }
+  .watch-row .best { grid-column: 1 / -1; font-size: 12px; color: var(--muted); overflow-wrap: break-word; }
+  .how { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+  .how p { margin: 0; }
+  .stores { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 8px; }
+  .stores span { font-size: 11px; font-weight: 600; letter-spacing: 0.03em; padding: 2px 7px; border-radius: 3px; background: var(--soft-bg); color: var(--ink); }
+
+  /* корзина */
+  .cart { display: grid; gap: 10px; }
+  .cart-sec { background: var(--card-bg); border-radius: 8px; padding: 10px 14px; box-shadow: 0 3px 10px var(--shadow-soft); }
+  .cart-sec h3 { margin: 0 0 4px; font-size: 13px; letter-spacing: 0.04em; }
+  .cart-items { list-style: none; padding: 0; margin: 0; font-size: 13px; }
+  .cart-items li { display: flex; align-items: flex-start; gap: 8px; padding: 5px 0; border-top: 1px solid var(--row-line); }
+  .cart-items li:first-child { border-top: none; }
+  .cart-items input { margin-top: 2px; accent-color: var(--good); width: 20px; height: 20px; flex: none; }
+  .cart-items .t { flex: 1; min-width: 0; overflow-wrap: break-word; }
+  .cart-items li.done .t { text-decoration: line-through; color: var(--muted); }
+  .cart-items .deal-tag { margin-left: 0; display: inline-block; margin-top: 3px; }
+  .cart-x { flex: none; min-width: 40px; height: 36px; border: 1px solid var(--line-soft); border-radius: 8px;
+    background: var(--card-bg); color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; padding: 0 8px; }
+  .cart-x:hover { color: var(--bad); border-color: var(--bad); }
+  .cart-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cart-actions .store-btn, a.store-btn { padding: 9px 14px; font-size: 13px; text-decoration: none; display: inline-block; }
+  .cart-actions .danger { color: var(--bad); }
+  .share-box { width: 100%; min-height: 160px; font: inherit; font-size: 13px; padding: 10px; border-radius: 8px;
+    border: 1px solid var(--line-soft); background: var(--card-bg); color: var(--ink); }
+  .share-msg { font-size: 12.5px; color: var(--good); margin: 0; }
+  .note { font-size: 11.5px; color: var(--muted); margin: 0; max-width: 72ch; }
+  .foot { font-size: 11.5px; color: var(--muted); margin-top: 10px; max-width: 72ch; line-height: 1.5; }
+
+  /* окна снизу: настройки, отзыв, «спасибо» */
+  .sheet-back { position: fixed; inset: 0; z-index: 60; background: var(--backdrop); display: flex; align-items: flex-end; justify-content: center; }
+  .sheet { width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto; background: var(--paper); border-radius: 18px 18px 0 0;
+    padding: 14px 16px calc(18px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -10px 30px var(--shadow); display: grid; gap: 14px; }
+  @media (min-width: 640px) { .sheet-back { align-items: center; } .sheet { border-radius: 18px; } }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .sheet-head h2 { font-family: 'Lora', Georgia, serif; font-weight: 500; font-size: 22px; margin: 0; }
+  .sheet-x { width: 40px; height: 40px; flex: none; border: none; border-radius: 50%; background: var(--card-bg); color: var(--ink); font-size: 22px; line-height: 1; cursor: pointer; }
+  .sheet p { margin: 0; line-height: 1.5; }
+  .field { display: grid; gap: 8px; }
+  .field > .lbl { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+  .seg .store-btn, .row-in .store-btn, #installSlot .store-btn { padding: 9px 14px; font-size: 13.5px; }
+  .row-in { display: flex; gap: 6px; margin: 0; }
+  .row-in input, .sheet textarea { flex: 1; min-width: 0; font: inherit; font-size: 16px; padding: 10px 12px; border-radius: 10px;
+    border: 1px solid var(--line-soft); background: var(--card-bg); color: var(--ink); }
+  .sheet textarea { min-height: 130px; resize: vertical; width: 100%; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips:empty, #installSlot:empty { display: none; }
+  .chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 2px 2px 12px; border-radius: 16px; background: var(--card-bg);
+    box-shadow: 0 1px 4px var(--shadow-soft); font-size: 13.5px; font-weight: 500; }
+  .chip button { width: 30px; height: 30px; border: none; background: none; color: var(--muted); font-size: 18px; line-height: 1; cursor: pointer; border-radius: 50%; }
+  .chip button:hover { color: var(--bad); }
+  .big-btn { display: block; text-align: center; padding: 13px 16px; border-radius: 12px; border: none; background: var(--chartreuse);
+    color: #141414; font: inherit; font-size: 15px; font-weight: 600; text-decoration: none; cursor: pointer; }
+  .hint { font-size: 12px; color: var(--muted); margin: 0; line-height: 1.45; }
+  /* отзыв: куда написать — крупные кнопки с иконкой, контакты на экране не показываются */
+  .channels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .channel { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 10px 12px; border: none; border-radius: 12px;
+    background: var(--card-bg); color: var(--ink); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 2px 6px var(--shadow-soft); text-align: left; }
+  .channel:hover { box-shadow: 0 4px 12px var(--shadow); }
+  .ch-ic { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 50%; background: var(--soft-bg); font-size: 16px; }
+  .ch-ic.tg { background: #2AABEE; color: #fff; }
+  .ch-ic.wa { background: #25D366; color: #fff; font-size: 18px; }
+  #installSlot { display: grid; gap: 8px; justify-items: start; }
+  .install-hint { font-size: 12px; color: var(--muted); margin: 0; }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+  /* раздел «Акции» — общий для личной страницы и «Акции Вены» (scripts/deals_view.js).
+     Цвета — через переменные с запасными значениями светлой темы: страница для друзей
+     переопределяет их для тёмной темы, у личной страницы работают значения по умолчанию */
+  .slot-empty { font-size: 12px; color: var(--muted); }
+  .deal-tag { font-size: 10px; background: var(--chartreuse); color: #141414; border-radius: 3px; padding: 1px 5px; margin-left: 6px; }
+  .deals-meta { font-size: 11.5px; color: var(--muted); margin: 0; }
+  .store-filter { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 4px; }
+  .store-btn {
+    font-family: inherit; font-size: 12px; font-weight: 600; border: none; border-radius: 14px; padding: 5px 12px;
+    background: var(--card-bg); color: var(--ink); cursor: pointer; box-shadow: 0 1px 4px var(--shadow-soft);
+  }
+  .store-btn.active { background: var(--ink); color: var(--card-bg); }
+  .store-btn:focus-visible, .cart-add:focus-visible, .group-toggle:focus-visible { outline: 2px solid var(--focus, #5B8FD6); outline-offset: 2px; }
+  .table-wrap { overflow-x: auto; background: var(--card-bg); border-radius: 8px; box-shadow: 0 3px 10px var(--shadow-soft); margin-top: 8px; }
+  .deals-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .deals-table th { text-align: left; font-size: 11px; color: var(--muted); font-weight: 600; padding: 8px 10px; border-bottom: 1px solid var(--line-soft); }
+  .deals-table td { padding: 7px 10px; border-bottom: 1px solid var(--row-line, #F1EFEA); vertical-align: top; }
+  .deal-store { font-weight: 600; white-space: nowrap; }
+  .deal-ru { font-size: 11.5px; color: var(--ru, #A09E98); margin-top: 2px; }
+  .deal-pack { white-space: nowrap; color: var(--muted); }
+  .deal-price { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .deal-note { font-size: 11px; color: var(--muted); white-space: normal; }
+  /* ширины по содержимому (2026-09-25): браузер сам делит место — короткие
+     столбцы (магазин, упаковка, цена) не переносятся, длинные названия переносятся по словам */
+  .deals-table { table-layout: auto; }
+  .deals-table td { overflow-wrap: break-word; }
+  .deal-name { min-width: 160px; }
+  /* «За кг» + вердикт «без акции дешевле: …» — самый длинный текст в строке, не даём схлопнуться */
+  .deal-unit { min-width: 200px; font-variant-numeric: tabular-nums; }
+  .store-cell { min-width: 110px; }
+  .store-cell.best { background: var(--good-bg, #F1F7EC); }
+  .store-cell.best .unit-val::after { content: " ✓"; color: var(--good, #3E7B27); }
+  .group-toggle { font: inherit; font-weight: 600; border: none; background: none; color: var(--ink); padding: 0; cursor: pointer; text-align: left; white-space: normal; }
+  .base-table td.deal-store { white-space: normal; min-width: 130px; }
+  .group-toggle .arrow { display: inline-block; margin-left: 5px; font-size: 13px; color: var(--muted); transition: transform .15s; }
+  .group-toggle.open .arrow { transform: rotate(180deg); }
+  .group-toggle:hover { text-decoration: underline; }
+  /* корзина из акций (2026-09-25) */
+  .cart-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0 10px; font-size: 12.5px; }
+  .cart-add { font: inherit; font-weight: 700; font-size: 15px; line-height: 1; width: 28px; height: 28px; flex: none;
+    border: none; border-radius: 50%; background: var(--chartreuse); color: #141414; cursor: pointer; }
+  .cart-add.in { background: var(--ink); color: var(--card-bg); font-size: 13px; }
+  .deals-table td.deal-cart { padding-right: 0; }
+  .deals-table tr.in-cart td { background: var(--cart-bg, #F6FBEF); }
+  .advice-line.with-cart { display: flex; align-items: flex-start; gap: 8px; margin-top: 4px; }
+  .advice-line.with-cart .cart-add { width: 24px; height: 24px; font-size: 13px; }
+  .deal-tag.expired { background: var(--bad-bg, #FBE9E1); color: var(--bad, #B5541B); }
+  .opts-row td { background: var(--soft-bg, #FAF9F6); }
+  .opt-line { font-size: 12px; padding: 2px 0; }
+  .unit-val { white-space: nowrap; font-weight: 600; }
+  .advice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 8px; }
+  .advice-col { background: var(--card-bg); border-radius: 8px; box-shadow: 0 3px 10px var(--shadow-soft); padding: 10px 12px; min-width: 0; }
+  .advice-h { margin: 0 0 6px; font-size: 13px; }
+  .advice-h.good { color: var(--good, #3E7B27); } .advice-h.bad { color: var(--bad, #B5541B); }
+  .advice-item { padding: 6px 0; border-top: 1px solid var(--row-line, #F1EFEA); font-size: 12.5px; }
+  .advice-group { font-weight: 600; }
+  .advice-line { margin-top: 2px; }
+  @media (max-width: 640px) { .advice-grid { grid-template-columns: 1fr; } }
+  .verdict { font-size: 11px; font-weight: 600; margin-top: 3px; }
+  .verdict.good { color: var(--good, #3E7B27); }
+  .verdict.same { color: var(--muted); }
+  .verdict.bad { color: var(--bad, #B5541B); }
+  .baseline { margin-top: 14px; }
+  .baseline summary { cursor: pointer; font-size: 13px; font-weight: 600; }
+  @media (max-width: 480px) { .deal-price { white-space: normal; } }
+
+  /* разделы приложения (2026-09-29): «Что брать», «Все акции», «Обычные цены» по отдельности */
+  .deals-block { margin-top: 12px; display: grid; gap: 8px; }
+  .block-h { font-family: var(--heading-font, 'Lora', Georgia, serif); font-weight: 500; font-size: 24px; margin: 0; text-wrap: balance; }
+  .block-hint { font-size: 12.5px; color: var(--muted); margin: 0 0 4px; max-width: 72ch; line-height: 1.45; }
+  .skip-list { margin-top: 12px; }
+  .skip-list > summary { font-size: 14px; font-weight: 600; color: var(--bad, #B5541B); padding: 10px 12px;
+    background: var(--card-bg); border-radius: 8px; box-shadow: 0 2px 6px var(--shadow-soft); list-style-position: inside; }
+  .skip-list[open] > summary { margin-bottom: 8px; }
+  /* «↑ наверх» — правый нижний угол, над системной полосой телефона */
+  .to-top { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 40;
+    width: 48px; height: 48px; border: none; border-radius: 50%; background: var(--ink); color: var(--card-bg);
+    font-size: 22px; line-height: 1; cursor: pointer; box-shadow: 0 6px 16px var(--shadow); }
+  .to-top:focus-visible { outline: 2px solid var(--focus, #5B8FD6); outline-offset: 3px; }
+
+  /* поиск (2026-09-29): прилипает к верху при прокрутке */
+  .deals-search { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; display: flex; gap: 6px;
+    align-items: center; padding: 8px 0; background: var(--paper, #EDEBE6); }
+  .deals-search input { flex: 1; min-width: 0; font: inherit; font-size: 16px; /* 16px — иначе iPhone приближает страницу */
+    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line-soft); background: var(--card-bg); color: var(--ink); }
+  .deals-search input:focus-visible { outline: 2px solid var(--focus, #5B8FD6); outline-offset: 1px; }
+  .search-clear { flex: none; width: 40px; height: 40px; border: none; border-radius: 10px; background: var(--card-bg);
+    color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; box-shadow: 0 1px 4px var(--shadow-soft); }
+  .deals-table tr.in-cart { background: var(--cart-bg, #F6FBEF); }
+
+  /* телефон (2026-09-29): акции — карточками, фильтры — одной строкой с прокруткой вбок,
+     в таблице обычных цен название продукта закреплено слева, кнопки — под палец */
+  @media (max-width: 640px) {
+    .store-filter { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      padding-bottom: 2px; }
+    .store-filter::-webkit-scrollbar { display: none; }
+    .store-btn { flex: none; padding: 7px 12px; font-size: 13px; }
+    .table-wrap:has(> .deals-table:not(.base-table)) { overflow-x: visible; }
+    .deals-table:not(.base-table) thead { display: none; }
+    .deals-table:not(.base-table), .deals-table:not(.base-table) tbody { display: block; }
+    .deals-table:not(.base-table) tr { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto;
+      grid-template-areas: "cart store store" "cart name name" "cart pack price" "cart unit unit";
+      column-gap: 10px; row-gap: 3px; padding: 10px 12px; border-bottom: 1px solid var(--row-line, #F1EFEA); }
+    .deals-table:not(.base-table) td { display: block; padding: 0; border: 0; min-width: 0; background: none; }
+    .deals-table:not(.base-table) tr.in-cart td { background: none; }
+    .deals-table .deal-cart { grid-area: cart; }
+    .deals-table:not(.base-table) .deal-store { grid-area: store; font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+    .deals-table:not(.base-table) .deal-name { grid-area: name; font-size: 14px; }
+    .deals-table:not(.base-table) .deal-pack { grid-area: pack; align-self: end; white-space: normal; }
+    .deals-table:not(.base-table) .deal-price { grid-area: price; text-align: right; white-space: normal; font-weight: 600; }
+    .deals-table:not(.base-table) .deal-price .deal-note, .deals-table:not(.base-table) .deal-price .verdict { font-weight: 400; }
+    .deals-table:not(.base-table) .deal-unit { grid-area: unit; min-width: 0; }
+    .cart-add { width: 36px; height: 36px; font-size: 18px; }
+    .advice-line.with-cart .cart-add { width: 32px; height: 32px; }
+    .base-table th:first-child, .base-table td:first-child { position: sticky; left: 0; z-index: 1;
+      background: var(--card-bg); box-shadow: 1px 0 0 var(--row-line, #F1EFEA); }
+    .base-table td.deal-store { min-width: 118px; max-width: 150px; }
+    .opts-row td:first-child { position: static; }
+  }
+
+  /* категории — выпадающее меню с галочками (2026-10-01): одна кнопка «Все товары ▾» вместо длинной строки */
+  .cat-picker { position: relative; margin: 8px 0 4px; }
+  .cat-btn { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 8px 14px; border: 1px solid var(--line-soft, #D8D5CD);
+    border-radius: 12px; background: var(--card-bg, #fff); color: var(--ink, #141414); font: inherit; font-size: 14px; font-weight: 600;
+    cursor: pointer; box-shadow: 0 1px 4px var(--shadow-soft, rgba(20,20,20,.09)); max-width: 100%; }
+  .cat-btn.active { background: var(--ink, #141414); color: var(--card-bg, #fff); border-color: transparent; }
+  .cat-btn .cat-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cat-btn .arrow { transition: transform .15s; }
+  .cat-picker.open .cat-btn .arrow { transform: rotate(180deg); }
+  .cat-btn:focus-visible { outline: 2px solid var(--focus, #5B8FD6); outline-offset: 2px; }
+  .cat-panel { position: absolute; z-index: 25; top: calc(100% + 6px); left: 0; width: max-content; min-width: 240px;
+    max-width: min(360px, calc(100vw - 32px)); max-height: 60vh; overflow-y: auto; padding: 6px; display: grid; gap: 2px;
+    background: var(--card-bg, #fff); border-radius: 12px; box-shadow: 0 10px 30px var(--shadow, rgba(20,20,20,.14)); }
+  .cat-opt { display: flex; align-items: center; gap: 10px; min-height: 40px; padding: 6px 10px; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  .cat-opt:hover { background: var(--soft-bg, #FAF9F6); }
+  .cat-opt input { width: 18px; height: 18px; flex: none; accent-color: var(--good, #3E7B27); }
+  .cat-opt.all { font-weight: 600; border-bottom: 1px solid var(--row-line, #F1EFEA); border-radius: 8px 8px 0 0; }
+  .cat-done { justify-self: end; margin: 6px 4px 2px; }
+  /* таблица обычных цен шире экрана: подсказка и тень у правого края */
+  .swipe-hint { font-size: 12.5px; color: var(--muted, #6E6C66); margin: 6px 0 0; }
+  .table-wrap.more-right { box-shadow: 0 3px 10px var(--shadow-soft, rgba(20,20,20,.09)), inset -18px 0 14px -14px var(--shadow, rgba(20,20,20,.25)); }
+
+  /* после общих стилей: «наверх» — над панелью вкладок, тёмная кнопка — как в корзине */
+  .to-top { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  .store-btn.primary { background: var(--ink); color: var(--card-bg); }
+</style>
+</head>
+<body><header class="topbar">
+  <div class="topbar-row">
+    <a class="brand" id="here" href="#home" data-view="home">Every Cent Counts</a>
+    <div class="top-actions">
+      <button type="button" class="icon-btn coin" data-sheet="donate" data-i18n-aria="Сказать спасибо" aria-label="Сказать спасибо"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M15.5 8.3a4.3 4.3 0 1 0 0 7.4M6.8 10.8h6.4M6.8 13.3h6.4"/></svg></button>
+      <button type="button" class="icon-btn" data-sheet="feedback" data-i18n-aria="Отзыв" aria-label="Отзыв"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button>
+      <button type="button" class="icon-btn" data-sheet="settings" data-i18n-aria="Настройки" aria-label="Настройки"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    </div>
+  </div>
+  <div class="deals-search">
+    <input type="search" id="q" autocomplete="off" data-i18n-ph="Найти: мандарины, Butter, Billa…" placeholder="Найти: мандарины, Butter, Billa…"
+      data-i18n-aria="Поиск по акциям и обычным ценам" aria-label="Поиск по акциям и обычным ценам">
+    <button type="button" class="search-clear" id="qClear" data-i18n-aria="Очистить поиск" aria-label="Очистить поиск" hidden>×</button>
+  </div>
+</header>
+<div class="wrap">
+  <section id="view-home" class="home">
+    <p class="sub" id="homeSub">Супермаркеты и дрогерии · обновлено 1 октября</p>
+    <nav class="home-nav" data-i18n-aria="Разделы" aria-label="Разделы">
+      <a href="#buy" data-view="buy" class="main"><span class="t" data-i18n="✅ Что брать">✅ Что брать</span><span class="d" data-home="buy"></span></a>
+      <a href="#deals" data-view="deals"><span class="t" data-i18n="🏷 Все акции">🏷 Все акции</span><span class="d" data-home="deals"></span></a>
+      <a href="#prices" data-view="prices"><span class="t" data-i18n="📊 Обычные цены">📊 Обычные цены</span><span class="d" data-i18n="сколько стоит без акции в каждой сети">сколько стоит без акции в каждой сети</span></a>
+      <a href="#list" data-view="list"><span class="t" data-i18n="🛒 Корзина">🛒 Корзина</span><span class="d" data-home="list"></span></a>
+    </nav>
+    <div class="card" id="watchBox"></div>
+    <div class="card how">
+      <p data-i18n="Каждую акцию сравниваем с самой низкой обычной ценой того же продукта во всех сетях — за кг, литр, рулон или стирку.">Каждую акцию сравниваем с самой низкой обычной ценой того же продукта во всех сетях — за кг, литр, рулон или стирку.</p>
+      <div class="stores"><span>Billa</span><span>Hofer</span><span>Lidl</span><span>Penny</span><span>Spar</span><span>dm</span><span>Müller</span><span>BIPA</span><span>Action</span></div>
+    </div>
+  </section>
+  <section id="view-deals" hidden><div id="dealsList"></div></section>
+  <section id="view-list" class="cart" hidden></section>
+  <p class="foot" data-i18n="Цены — с сайтов магазинов, обновляются дважды в неделю. Hofer и Lidl показывают онлайн не весь ассортимент, у BIPA срок акции на сайте не указан. Корзина и настройки хранятся только в этом браузере.">Цены — с сайтов магазинов, обновляются дважды в неделю. Hofer и Lidl показывают онлайн не весь ассортимент, у BIPA срок акции на сайте не указан. Корзина и настройки хранятся только в этом браузере.</p>
+  <p class="foot copy">© 2026 diana_vozduh</p>
+</div>
+
+<nav class="tabbar" data-i18n-aria="Разделы" aria-label="Разделы">
+  <div class="tabbar-row">
+    <a class="tab" href="#home" data-view="home"><span class="pill"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9.5 12 3l9 6.5V20a1.5 1.5 0 0 1-1.5 1.5H15v-6H9v6H4.5A1.5 1.5 0 0 1 3 20z"/></svg></span><span class="lbl" data-i18n="Главная">Главная</span></a>
+    <a class="tab" href="#buy" data-view="buy"><span class="pill"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="m7.5 12.3 3 3 6-6.3"/></svg></span><span class="lbl" data-i18n="Брать">Брать</span></a>
+    <a class="tab" href="#deals" data-view="deals"><span class="pill"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L2.5 12.5V2.5h10l8.1 8.1a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg></span><span class="lbl" data-i18n="Акции">Акции</span></a>
+    <a class="tab" href="#prices" data-view="prices"><span class="pill"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V11M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="lbl" data-i18n="Цены">Цены</span></a>
+    <a class="tab" href="#list" data-view="list"><span class="pill"><svg class="ic" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="20.5" r="1.3"/><circle cx="19" cy="20.5" r="1.3"/><path d="M1.5 2.5h3.5l2.6 12.4a2 2 0 0 0 2 1.6h9a2 2 0 0 0 2-1.6L22.5 7H6"/></svg></span><span class="lbl" data-i18n="Корзина">Корзина</span><span class="badge" data-count="list"></span></a>
+  </div>
+</nav>
+
+<div class="sheet-back" id="sheetBack" hidden>
+  <section class="sheet" id="sheet-settings" role="dialog" aria-modal="true" aria-labelledby="setH" hidden>
+    <div class="sheet-head"><h2 id="setH" data-i18n="Настройки">Настройки</h2><button type="button" class="sheet-x" data-close data-i18n-aria="Закрыть" aria-label="Закрыть">×</button></div>
+    <div class="field"><span class="lbl" data-i18n="Язык">Язык</span>
+      <div class="seg" id="langSeg"><button type="button" class="store-btn" data-lang="ru">Русский</button><button type="button" class="store-btn" data-lang="en">English</button><button type="button" class="store-btn" data-lang="de">Deutsch</button></div>
+    </div>
+    <div class="field"><span class="lbl" data-i18n="Тема">Тема</span>
+      <div class="seg" id="themeSeg"><button type="button" class="store-btn" data-theme-set="auto" data-i18n="Авто">Авто</button><button type="button" class="store-btn" data-theme-set="light" data-i18n="Светлая">Светлая</button><button type="button" class="store-btn" data-theme-set="dark" data-i18n="Тёмная">Тёмная</button></div>
+    </div>
+    <div class="field"><label class="lbl" for="watchIn" data-i18n="Отслеживать продукты">Отслеживать продукты</label>
+      <form class="row-in" id="watchForm"><input id="watchIn" autocomplete="off" data-i18n-ph="мандарины, Kaffee, Skyr…" placeholder="мандарины, Kaffee, Skyr…"><button type="submit" class="store-btn primary" data-i18n="Добавить">Добавить</button></form>
+      <div class="chips" id="watchChips"></div>
+      <p class="hint" data-i18n="Акции на эти продукты — на главной. Можно писать по-русски, по-английски или по-немецки.">Акции на эти продукты — на главной. Можно писать по-русски, по-английски или по-немецки.</p>
+    </div>
+    <div class="field"><span class="lbl" data-i18n="Поделиться приложением">Поделиться приложением</span>
+      <div class="seg"><button type="button" class="store-btn" id="copyLink" data-url="https://dianavozduh.github.io/vienna-deals/" data-i18n="🔗 Скопировать ссылку">🔗 Скопировать ссылку</button></div>
+      <div id="installSlot"></div>
+    </div>
+  </section>
+  <section class="sheet" id="sheet-feedback" role="dialog" aria-modal="true" aria-labelledby="fbH" hidden>
+    <div class="sheet-head"><h2 id="fbH" data-i18n="Отзыв или предложение">Отзыв или предложение</h2><button type="button" class="sheet-x" data-close data-i18n-aria="Закрыть" aria-label="Закрыть">×</button></div>
+    <div class="seg" id="fbSeg"><button type="button" class="store-btn active" data-fb="bug" data-i18n="🐞 Ошибка">🐞 Ошибка</button><button type="button" class="store-btn" data-fb="idea" data-i18n="💡 Предложение">💡 Предложение</button><button type="button" class="store-btn" data-fb="other" data-i18n="💬 Другое">💬 Другое</button></div>
+    <textarea id="fbText" data-i18n-ph="Опиши, что не так или что добавить…" placeholder="Опиши, что не так или что добавить…" data-i18n-aria="Отзыв или предложение" aria-label="Отзыв или предложение"></textarea>
+    <div class="field"><span class="lbl" data-i18n="Куда написать">Куда написать</span>
+      <div class="channels" id="fbChannels">
+        <button type="button" class="channel" data-ch="form" hidden><span class="ch-ic">📝</span><span data-i18n="Google-форма">Google-форма</span></button>
+        <button type="button" class="channel" data-ch="email" hidden><span class="ch-ic">✉️</span><span>E-mail</span></button>
+        <button type="button" class="channel" data-ch="telegram" hidden><span class="ch-ic tg">➤</span><span>Telegram</span></button>
+        <button type="button" class="channel" data-ch="whatsapp" hidden><span class="ch-ic wa">✆</span><span>WhatsApp</span></button>
+      </div>
+    </div>
+    <p class="hint" id="fbHint"></p>
+  </section>
+  <section class="sheet" id="sheet-donate" role="dialog" aria-modal="true" aria-labelledby="dnH" hidden>
+    <div class="sheet-head"><h2 id="dnH" data-i18n="Сказать спасибо">Сказать спасибо</h2><button type="button" class="sheet-x" data-close data-i18n-aria="Закрыть" aria-label="Закрыть">×</button></div>
+    <p data-i18n="Приложение бесплатное и без рекламы. Если оно помогло сэкономить — можно угостить автора кофе.">Приложение бесплатное и без рекламы. Если оно помогло сэкономить — можно угостить автора кофе.</p>
+    <a class="big-btn" id="donateLink" href="" target="_blank" rel="noopener" data-i18n="☕ Угостить кофе">☕ Угостить кофе</a>
+    <p class="hint" id="donateSoon" data-i18n="Ссылка для благодарности скоро появится здесь 🙂">Ссылка для благодарности скоро появится здесь 🙂</p>
+  </section>
+</div>
+<div id="appCfg" data-form="https://docs.google.com/forms/d/e/1FAIpQLScZfYXmIai447_FsHP9tzswE1sWNX6Oi5vlK6QZH_j5NJ17-g/viewform" data-email="" data-telegram="" data-whatsapp="" hidden></div>
+<script>window.DealsI18n = {data: {"categories":{"Овощи и фрукты":["Fruit & vegetables","Obst & Gemüse"],"Хлеб и выпечка":["Bread & bakery","Brot & Gebäck"],"Молочные продукты и яйца":["Dairy & eggs","Milchprodukte & Eier"],"Сыр":["Cheese","Käse"],"Мясо и птица":["Meat & poultry","Fleisch & Geflügel"],"Колбасы и деликатесы":["Cold cuts & deli","Wurst & Feinkost"],"Рыба и морепродукты":["Fish & seafood","Fisch & Meeresfrüchte"],"Замороженные продукты":["Frozen food","Tiefkühlkost"],"Крупы, макароны, бобовые":["Grains, pasta, legumes","Getreide, Nudeln, Hülsenfrüchte"],"Консервы":["Canned food","Konserven"],"Масло, уксус, соусы":["Oil, vinegar, sauces","Öl, Essig, Saucen"],"Специи и приправы":["Spices & seasonings","Gewürze"],"Для выпечки":["Baking","Backen"],"Орехи, семечки, сухофрукты":["Nuts, seeds, dried fruit","Nüsse, Samen, Trockenobst"],"Сладости и снеки":["Sweets & snacks","Süßes & Snacks"],"Кофе и чай":["Coffee & tea","Kaffee & Tee"],"Бытовая химия и бумага":["Household & paper","Haushalt & Papier"],"Прочее":["Other","Sonstiges"],"Джемы, мёд и сладкие пасты":["Jams, honey & sweet spreads","Konfitüren, Honig & Aufstriche"],"Рождество":["Christmas","Weihnachten"],"Мюсли, хлопья и растительное молоко":["Muesli, cereal & plant milk","Müsli, Cerealien & Pflanzendrinks"],"Дрогерия и гигиена":["Drugstore & hygiene","Drogerie & Hygiene"],"Хэллоуин и осень":["Halloween & autumn","Halloween & Herbst"],"Пасха":["Easter","Ostern"]},"groups":{"пряники и лебкухен (готовые)":["gingerbread & Lebkuchen","Lebkuchen"],"штоллен":["stollen","Stollen"],"марципан":["marzipan","Marzipan"],"рождественское печенье":["Christmas cookies","Weihnachtskekse"],"орехи в глазури и сладкие":["candied & coated nuts","gebrannte & überzogene Nüsse"],"конфеты и пралине к празднику":["chocolates & pralines","Pralinen & Konfekt"],"джем и конфитюр":["jam & preserves","Konfitüre & Marmelade"],"яйца":["eggs","Eier"],"овсяные хлопья":["oat flakes","Haferflocken"],"молочное с протеином":["high-protein dairy","Protein-Milchprodukte"],"творог":["quark (Topfen)","Topfen"],"зернёный творог":["cottage cheese","Hüttenkäse"],"скир":["skyr","Skyr"],"греческий йогурт":["Greek yogurt","griechisches Joghurt"],"йогурт натуральный":["plain yogurt","Naturjoghurt"],"молоко":["milk","Milch"],"кефир":["kefir","Kefir"],"масло сливочное":["butter","Butter"],"творожный сыр (Frischkäse)":["cream cheese","Frischkäse"],"фета":["feta","Feta"],"моцарелла":["mozzarella","Mozzarella"],"пармезан / грана":["parmesan / grana","Parmesan / Grana"],"сыр твёрдый и полутвёрдый":["hard & semi-hard cheese","Hart- & Schnittkäse"],"индейка филе":["turkey breast fillet","Putenbrustfilet"],"индейка бедро / голень":["turkey thigh / drumstick","Putenoberkeule / Unterkeule"],"индейка крылья":["turkey wings","Putenflügel"],"фарш из птицы":["ground poultry","Geflügelfaschiertes"],"куриные сердечки":["chicken hearts","Hühnerherzen"],"куриные желудки":["chicken gizzards","Hühnermägen"],"куриная печень":["chicken liver","Hühnerleber"],"куриные шейки":["chicken necks","Hühnerhälse"],"куриное филе":["chicken breast fillet","Hühnerbrustfilet"],"куриные крылья":["chicken wings","Hühnerflügel"],"куриные голени":["chicken drumsticks","Hühnerunterkeulen"],"куриные бёдра и окорочка":["chicken thighs & legs","Hühnerkeulen"],"курица целая":["whole chicken","ganzes Huhn"],"кролик":["rabbit","Kaninchen"],"говядина (гуляш, куском)":["beef (goulash, whole cuts)","Rindfleisch (Gulasch, Stück)"],"кости и хвосты (для бульона, холодца)":["bones & oxtail (for broth)","Knochen & Ochsenschwanz (für Suppe)"],"гусь":["goose","Gans"],"утка":["duck","Ente"],"фарш говяжий":["ground beef","Rindsfaschiertes"],"фарш смешанный":["mixed ground meat","gemischtes Faschiertes"],"лосось копчёный":["smoked salmon","Räucherlachs"],"лосось филе":["salmon fillet","Lachsfilet"],"форель копчёная":["smoked trout","Räucherforelle"],"форель филе":["trout fillet","Forellenfilet"],"форель целая":["whole trout","ganze Forelle"],"скумбрия копчёная":["smoked mackerel","Räuchermakrele"],"скумбрия консервы":["canned mackerel","Makrelenkonserve"],"сельдь":["herring","Hering"],"сардины":["sardines","Sardinen"],"тунец консервы":["canned tuna","Thunfischkonserve"],"белая рыба филе":["white fish fillet","Weißfischfilet"],"креветки":["shrimp","Garnelen"],"кальмар":["squid","Tintenfisch"],"чечевица":["lentils","Linsen"],"нут":["chickpeas","Kichererbsen"],"фасоль":["beans","Bohnen"],"гречка":["buckwheat","Buchweizen"],"пшено":["millet","Hirse"],"киноа":["quinoa","Quinoa"],"булгур":["bulgur","Bulgur"],"рис бурый":["brown rice","Naturreis"],"паста цельнозерновая":["whole-wheat pasta","Vollkornnudeln"],"рис":["rice","Reis"],"паста":["pasta","Nudeln"],"кускус":["couscous","Couscous"],"полента / кукурузная крупа":["polenta / cornmeal","Polenta / Maisgrieß"],"мука":["flour","Mehl"],"тофу":["tofu","Tofu"],"тыква":["pumpkin","Kürbis"],"квашеная капуста":["sauerkraut","Sauerkraut"],"капуста белокочанная":["white cabbage","Weißkraut"],"капуста краснокочанная":["red cabbage","Rotkraut"],"капуста":["cabbage","Kraut"],"морковь":["carrots","Karotten"],"батат":["sweet potatoes","Süßkartoffeln"],"картофель":["potatoes","Kartoffeln"],"кабачок":["zucchini","Zucchini"],"брокколи":["broccoli","Brokkoli"],"цветная капуста":["cauliflower","Karfiol"],"свёкла":["beetroot","Rote Rüben"],"лук репчатый":["onions","Zwiebeln"],"паприка молотая":["ground paprika","Paprikapulver"],"перец сладкий":["bell peppers","Paprika"],"маринованные огурцы":["pickled gherkins","Essiggurken"],"майонез":["mayonnaise","Mayonnaise"],"пассата (протёртые томаты)":["passata","passierte Tomaten"],"томаты консервы (кусочки, очищенные)":["canned tomatoes","Tomatenkonserve (gehackt, geschält)"],"томаты свежие":["fresh tomatoes","Tomaten"],"смесь перцев":["mixed peppercorns","Pfeffermischung"],"перец чёрный":["black pepper","schwarzer Pfeffer"],"перец белый":["white pepper","weißer Pfeffer"],"чили / кайенский перец":["chili / cayenne","Chili / Cayennepfeffer"],"паприка копчёная":["smoked paprika","geräuchertes Paprikapulver"],"тмин (Kümmel)":["caraway","Kümmel"],"зира / кумин (Kreuzkümmel)":["cumin","Kreuzkümmel"],"корица":["cinnamon","Zimt"],"куркума":["turmeric","Kurkuma"],"имбирь молотый":["ground ginger","Ingwerpulver"],"кардамон":["cardamom","Kardamom"],"гвоздика":["cloves","Gewürznelken"],"перец душистый":["allspice","Piment"],"бадьян / анис":["star anise / anise","Sternanis / Anis"],"кориандр":["coriander","Koriander"],"мускатный орех":["nutmeg","Muskatnuss"],"карри / гарам масала":["curry / garam masala","Curry / Garam Masala"],"имбирно-пряничная смесь (Lebkuchengewürz)":["gingerbread spice","Lebkuchengewürz"],"лавровый лист":["bay leaves","Lorbeerblätter"],"чеснок сушёный":["dried garlic","Knoblauchgranulat"],"сушёные травы":["dried herbs","getrocknete Kräuter"],"зелень замороженная":["frozen herbs","TK-Kräuter"],"соль":["salt","Salz"],"сахар":["sugar","Zucker"],"лисички":["chanterelles","Eierschwammerl"],"шампиньоны":["mushrooms","Champignons"],"стручковая фасоль":["green beans","Fisolen"],"шпинат свежий":["fresh spinach","Blattspinat frisch"],"шпинат замороженный":["frozen spinach","TK-Spinat"],"овощи замороженные и смеси":["frozen vegetables","TK-Gemüse"],"горошек консервированный":["canned peas","Erbsen (Dose)"],"ягоды и фрукты замороженные":["frozen berries & fruit","TK-Beeren & Obst"],"ягоды свежие":["fresh berries","frische Beeren"],"авокадо":["avocado","Avocado"],"яблоки":["apples","Äpfel"],"груши":["pears","Birnen"],"бананы":["bananas","Bananen"],"лимоны":["lemons","Zitronen"],"мандарины":["mandarins","Mandarinen"],"апельсины":["oranges","Orangen"],"оливковое масло":["olive oil","Olivenöl"],"рапсовое масло":["rapeseed oil","Rapsöl"],"кукурузное масло":["corn oil","Maiskeimöl"],"подсолнечное масло":["sunflower oil","Sonnenblumenöl"],"грецкие орехи":["walnuts","Walnüsse"],"миндаль":["almonds","Mandeln"],"фундук":["hazelnuts","Haselnüsse"],"кешью":["cashews","Cashews"],"арахис":["peanuts","Erdnüsse"],"смесь орехов":["mixed nuts","Nussmischung"],"семена тыквы":["pumpkin seeds","Kürbiskerne"],"семена подсолнечника":["sunflower seeds","Sonnenblumenkerne"],"семена льна":["flax seeds","Leinsamen"],"семена чиа":["chia seeds","Chiasamen"],"кунжут":["sesame","Sesam"],"семена конопли":["hemp seeds","Hanfsamen"],"хлебцы (кнеккеброт)":["crispbread","Knäckebrot"],"хлеб":["bread","Brot"],"выпечка сладкая":["sweet pastries","süßes Gebäck"],"булочки":["rolls","Gebäck (Semmeln)"],"печенье":["cookies","Kekse"],"шоколад для выпечки":["baking chocolate","Kochschokolade"],"шоколад тёмный":["dark chocolate","Zartbitterschokolade"],"шоколад молочный":["milk chocolate","Milchschokolade"],"кленовый сироп":["maple syrup","Ahornsirup"],"сиропы без сахара (0 ккал)":["sugar-free syrups","zuckerfreie Sirupe"],"кокосовое молоко":["coconut milk","Kokosmilch"],"чай листовой":["loose-leaf tea","loser Tee"],"кофе молотый":["ground coffee","gemahlener Kaffee"],"кофе в зёрнах":["coffee beans","Kaffeebohnen"],"ветчина варёная":["cooked ham","Kochschinken"],"хамон / прошутто":["jamón / prosciutto","Rohschinken"],"сосиски и сардельки":["sausages","Würstel"],"сало / шпик / бекон":["bacon / Speck","Speck"],"соевый соус":["soy sauce","Sojasauce"],"соус терияки / азиатские соусы":["teriyaki & Asian sauces","Teriyaki & asiatische Saucen"],"соус барбекю / для гриля":["BBQ sauce","Grill- & BBQ-Sauce"],"острые соусы":["hot sauces","scharfe Saucen"],"маринады готовые":["ready marinades","fertige Marinaden"],"горчица":["mustard","Senf"],"кетчуп":["ketchup","Ketchup"],"песто":["pesto","Pesto"],"паста карри":["curry paste","Currypaste"],"бальзамический уксус":["balsamic vinegar","Balsamico"],"тесто слоёное (Blätterteig)":["puff pastry","Blätterteig"],"тесто песочное (Mürbteig)":["shortcrust pastry","Mürbteig"],"тесто дрожжевое (Germteig)":["yeast dough","Germteig"],"тесто для пиццы":["pizza dough","Pizzateig"],"тесто для штруделя / фило":["strudel / filo dough","Strudelteig / Filo"],"тесто круассанное":["croissant dough","Croissantteig"],"желатин":["gelatin","Gelatine"],"сметана (Sauerrahm)":["sour cream","Sauerrahm"],"сахарная пудра":["icing sugar","Staubzucker"],"какао-порошок (чистый)":["cocoa powder","Kakaopulver"],"маршмеллоу":["marshmallows","Marshmallows"],"бумага для выпечки":["baking paper","Backpapier"],"фольга алюминиевая":["aluminium foil","Alufolie"],"туалетная бумага":["toilet paper","Toilettenpapier"],"бумажные кухонные полотенца":["paper towels","Küchenrolle"],"средство для мытья посуды":["dish soap","Geschirrspülmittel"],"жидкое мыло для рук":["liquid hand soap","Flüssigseife"],"средство для стирки (гель/порошок/капсулы)":["laundry detergent","Waschmittel"],"пятновыводитель / отбеливатель (порошок)":["stain remover (powder)","Fleckentferner (Pulver)"],"пятновыводитель / отбеливатель (спрей, гель)":["stain remover (spray, gel)","Fleckentferner (Spray, Gel)"],"средство для унитаза":["toilet cleaner","WC-Reiniger"],"средство для кухни (от жира)":["kitchen degreaser","Küchenreiniger"],"средство для ванной / от извести":["bathroom & limescale cleaner","Bad- & Kalkreiniger"],"универсальное чистящее средство":["all-purpose cleaner","Allzweckreiniger"],"средство от накипи (чайник, кофемашина)":["descaler","Entkalker"],"лимонная кислота":["citric acid","Zitronensäure"],"средство для стеклокерамики":["ceramic hob cleaner","Glaskeramik-Reiniger"],"губки для посуды":["dish sponges","Schwämme"],"хэллоуин":["Halloween","Halloween"],"осенний декор":["autumn decor","Herbstdeko"],"пасха":["Easter","Ostern"],"адвент-календари":["advent calendars","Adventkalender"],"рождественские подарки и декор":["Christmas gifts & decor","Weihnachtsgeschenke & Deko"],"мёд":["honey","Honig"],"ореховые и шоколадные пасты":["nut & chocolate spreads","Nuss- & Schokoaufstriche"],"мюсли и хлопья":["muesli & cereal","Müsli & Cerealien"],"растительное молоко":["plant-based milk","Pflanzendrinks"],"картофель фри и изделия":["fries & potato products","Pommes & Kartoffelprodukte"],"рыбные палочки и рыба в панировке":["fish fingers & breaded fish","Fischstäbchen & panierter Fisch"],"пицца замороженная":["frozen pizza","TK-Pizza"],"свинина":["pork","Schweinefleisch"],"баранина":["lamb","Lammfleisch"],"сливки":["cream","Obers & Sahne"],"маскарпоне":["mascarpone","Mascarpone"],"рикотта":["ricotta","Ricotta"],"камамбер и бри":["camembert & brie","Camembert & Brie"],"голубые сыры":["blue cheese","Blauschimmelkäse"],"плавленый сыр":["processed cheese","Schmelzkäse"],"йогурт с наполнителем":["flavoured yogurt","Fruchtjoghurt"],"зелень и салаты":["fresh herbs & salad","frische Kräuter & Salate"],"огурцы":["cucumbers","Gurken"],"чеснок свежий":["fresh garlic","Knoblauch"],"имбирь свежий":["fresh ginger","Ingwer"],"порей":["leeks & spring onions","Lauch & Jungzwiebeln"],"сельдерей":["celery","Sellerie"],"фенхель":["fennel","Fenchel"],"баклажан":["aubergine","Melanzani"],"редис и редька":["radish","Radieschen & Rettich"],"кольраби":["kohlrabi","Kohlrabi"],"виноград":["grapes","Weintrauben"],"киви":["kiwi","Kiwi"],"сливы":["plums","Zwetschken"],"хурма":["persimmon","Kaki"],"ананас":["pineapple","Ananas"],"манго":["mango","Mango"],"гранат":["pomegranate","Granatapfel"],"дыня и арбуз":["melons","Melonen"],"персики и нектарины":["peaches & nectarines","Pfirsiche & Nektarinen"],"уксус":["vinegar","Essig"],"бульон и суповые кубики":["stock & bouillon","Suppenwürfel & Brühe"],"соусы для пасты":["pasta sauces","Pastasaucen"],"оливки":["olives","Oliven"],"кукуруза консервированная":["canned corn","Mais (Dose)"],"дрожжи":["yeast","Germ"],"разрыхлитель и сода":["baking powder & soda","Backpulver & Natron"],"ванильный сахар":["vanilla sugar","Vanillezucker"],"крахмал":["starch","Stärke"],"манка":["semolina","Grieß"],"мешки для мусора":["bin bags","Müllbeutel"],"пакеты для заморозки":["freezer bags","Gefrierbeutel"],"пищевая плёнка":["cling film","Frischhaltefolie"],"бумажные платочки":["tissues","Taschentücher"],"салфетки бумажные":["paper napkins","Servietten"],"зубная паста":["toothpaste","Zahnpasta"],"зубные щётки":["toothbrushes","Zahnbürsten"],"шампунь":["shampoo","Shampoo"],"кондиционер для волос":["conditioner","Spülung"],"гель для душа":["shower gel","Duschgel"],"дезодорант":["deodorant","Deo"],"крем и лосьон для тела":["body lotion & cream","Bodylotion & Creme"],"прокладки и тампоны":["pads & tampons","Binden & Tampons"],"подгузники":["nappies","Windeln"],"ватные диски и палочки":["cotton pads & buds","Wattepads & Wattestäbchen"],"бритвы и лезвия":["razors & blades","Rasierer & Klingen"],"влажные салфетки":["wet wipes","Feuchttücher"]}}};</script>
+<script>
+// Языки приложения «Every Cent Counts» (2026-09-29): русский, английский, немецкий.
+// DealsI18n.t("русский шаблон {n}", {n: 3}) — подпись интерфейса на текущем языке;
+// DealsI18n.d(строка из данных) — группа, категория, пометка, единицы («€/кг», «вместо», «с 01.10»…).
+// Названия групп и категорий — scripts/i18n_data.json, его встраивает render_deals_public.py
+// (DealsI18n.data). Нет перевода — остаётся русский текст. Язык хранится в localStorage.
+(function () {
+  var KEY = "viennaDealsLang";
+  var LANGS = ["ru", "en", "de"];
+
+  // подписи интерфейса: русский шаблон → [английский, немецкий]
+  var UI = {
+    // название и главная
+    "Акции супермаркетов и дрогерий Вены — только те, что правда дешевле": ["Vienna supermarket & drugstore deals — only the ones that are really cheaper", "Aktionen der Wiener Supermärkte und Drogerien – nur die, die wirklich billiger sind"],
+    "обновлено {d}": ["updated {d}", "aktualisiert am {d}"],
+    "Главная": ["Home", "Start"], "Брать": ["Buy", "Kaufen"], "Акции": ["Deals", "Aktionen"],
+    "Цены": ["Prices", "Preise"], "Корзина": ["Cart", "Korb"], "Поиск": ["Search", "Suche"],
+    "Что брать": ["What to buy", "Was kaufen"], "Все акции": ["All deals", "Alle Aktionen"],
+    "Обычные цены": ["Regular prices", "Normalpreise"], "Разделы": ["Sections", "Bereiche"],
+    "✅ Что брать": ["✅ What to buy", "✅ Was kaufen"],
+    "🏷 Все акции": ["🏷 All deals", "🏷 Alle Aktionen"],
+    "📊 Обычные цены": ["📊 Regular prices", "📊 Normalpreise"],
+    "🛒 Корзина": ["🛒 Cart", "🛒 Korb"],
+    "{n} продуктов дешевле обычного": ["{n} products cheaper than usual", "{n} Produkte billiger als sonst"],
+    "где акция правда дешевле": ["where the deal is really cheaper", "wo die Aktion wirklich billiger ist"],
+    "{n} акций в {s} сетях": ["{n} deals in {s} chains", "{n} Aktionen in {s} Ketten"],
+    "сколько стоит без акции в каждой сети": ["what it costs without a deal in each chain", "was es ohne Aktion in jeder Kette kostet"],
+    "в корзине: {n}": ["in cart: {n}", "im Korb: {n}"], "пока пусто": ["empty for now", "noch leer"],
+    "Каждую акцию сравниваем с самой низкой обычной ценой того же продукта во всех сетях — за кг, литр, рулон или стирку.": ["Every deal is compared with the lowest regular price of the same product across all chains — per kg, litre, roll or wash.", "Jede Aktion wird mit dem niedrigsten Normalpreis desselben Produkts in allen Ketten verglichen – pro kg, Liter, Rolle oder Waschgang."],
+    // отслеживание
+    "👀 Отслеживаю": ["👀 Watching", "👀 Beobachtet"],
+    "{n} акц.": ["on sale: {n}", "im Angebot: {n}"], "сейчас акций нет": ["no deals right now", "gerade keine Aktion"],
+    "Следи за продуктами: добавь, например, «кофе» или «Butter» — акции на них будут здесь.": ["Watch products: add e.g. “coffee” or “Butter” — their deals will show up here.", "Produkte beobachten: z. B. „Kaffee“ oder „Butter“ hinzufügen – Aktionen dazu erscheinen hier."],
+    "Выбрать продукты": ["Choose products", "Produkte wählen"],
+    // настройки
+    "Настройки": ["Settings", "Einstellungen"], "Язык": ["Language", "Sprache"], "Тема": ["Theme", "Design"],
+    "Авто": ["Auto", "Auto"], "Светлая": ["Light", "Hell"], "Тёмная": ["Dark", "Dunkel"],
+    "Отслеживать продукты": ["Watch products", "Produkte beobachten"],
+    "мандарины, Kaffee, Skyr…": ["apples, Kaffee, Skyr…", "Äpfel, Kaffee, Skyr…"],
+    "Добавить": ["Add", "Hinzufügen"], "Убрать «{w}»": ["Remove “{w}”", "„{w}“ entfernen"],
+    "Акции на эти продукты — на главной. Можно писать по-русски, по-английски или по-немецки.": ["Deals for these products appear on the home screen. Russian, English or German words work.", "Aktionen dazu erscheinen auf der Startseite. Russisch, Englisch oder Deutsch funktioniert."],
+    "Поделиться приложением": ["Share the app", "App teilen"],
+    "🔗 Скопировать ссылку": ["🔗 Copy link", "🔗 Link kopieren"], "✓ Ссылка скопирована": ["✓ Link copied", "✓ Link kopiert"],
+    "Закрыть": ["Close", "Schließen"],
+    "⬇ Установить на телефон": ["⬇ Install on phone", "⬇ Aufs Handy installieren"],
+    "Поставить на телефон: кнопка «Поделиться» в Safari → «На экран „Домой“».": ["Install: Safari “Share” button → “Add to Home Screen”.", "Installieren: in Safari „Teilen“ → „Zum Home-Bildschirm“."],
+    // отзыв
+    "Отзыв": ["Feedback", "Feedback"], "Отзыв или предложение": ["Feedback or idea", "Feedback oder Idee"],
+    "🐞 Ошибка": ["🐞 Bug", "🐞 Fehler"], "💡 Предложение": ["💡 Idea", "💡 Vorschlag"], "💬 Другое": ["💬 Other", "💬 Sonstiges"],
+    "Опиши, что не так или что добавить…": ["Describe what’s wrong or what to add…", "Beschreib, was nicht passt oder was fehlt…"],
+    "Отправить": ["Send", "Senden"],
+    "Откроется GitHub: войди и нажми «Create». Текст уже будет вставлен.": ["GitHub will open: sign in and press “Create”. Your text is already filled in.", "GitHub öffnet sich: anmelden und „Create“ drücken. Der Text ist schon eingefügt."],
+    "Откроется почта с готовым письмом.": ["Your mail app will open with the message ready.", "Dein Mail-Programm öffnet sich mit der fertigen Nachricht."],
+    "Сначала напиши пару слов 🙂": ["Write a few words first 🙂", "Schreib zuerst ein paar Worte 🙂"],
+    "Опиши, что не так или что добавить (можно и потом, в самом чате)…": ["Describe what’s wrong or what to add (or do it later in the chat)…", "Beschreib, was nicht passt oder was fehlt (oder später im Chat)…"],
+    "Куда написать": ["Where to write", "Wohin schreiben"], "Google-форма": ["Google Form", "Google-Formular"],
+    "Нажми, где тебе удобнее, — откроется письмо или чат, текст уже будет там.": ["Pick what suits you — an email or chat opens with your text already in it.", "Wähle, was dir passt – E-Mail oder Chat öffnet sich mit deinem Text."],
+    "Текст скопирован — вставь его в чат Telegram.": ["Text copied — paste it into the Telegram chat.", "Text kopiert – in den Telegram-Chat einfügen."],
+    "Откроется Google-форма. Текст, написанный здесь, скопируется — вставь его в форму.": ["A Google Form will open. If you already wrote your text here, it gets copied — just paste it into the form.", "Ein Google-Formular öffnet sich. Wenn du hier schon Text geschrieben hast, wird er kopiert – einfach ins Formular einfügen."],
+    "Текст скопирован — вставь его в форму.": ["Text copied — paste it into the form.", "Text kopiert – ins Formular einfügen."],
+    "Спасибо! 💚": ["Thank you! 💚", "Danke! 💚"],
+    // донат
+    "Сказать спасибо": ["Say thanks", "Danke sagen"],
+    "Приложение бесплатное и без рекламы. Если оно помогло сэкономить — можно угостить автора кофе.": ["The app is free and ad-free. If it saved you money, you can buy the author a coffee.", "Die App ist gratis und werbefrei. Wenn sie dir beim Sparen geholfen hat, kannst du der Autorin einen Kaffee spendieren."],
+    "☕ Угостить кофе": ["☕ Buy a coffee", "☕ Kaffee spendieren"],
+    "Ссылка для благодарности скоро появится здесь 🙂": ["A link to say thanks will appear here soon 🙂", "Ein Link zum Danke-Sagen kommt hier bald 🙂"],
+    // корзина
+    "Здесь пусто. Нажми «+» у акции, и она появится здесь, по магазинам.": ["Nothing here yet. Tap “+” on a deal and it appears here, grouped by store.", "Noch leer. Tippe bei einer Aktion auf „+“, dann erscheint sie hier, nach Geschäften sortiert."],
+    "✅ Посмотреть, что брать →": ["✅ See what to buy →", "✅ Was kaufen →"],
+    "Куплено": ["Bought", "Gekauft"], "акция закончилась": ["deal ended", "Aktion vorbei"],
+    "Убрать": ["Remove", "Entfernen"], "Убрать из корзины: {t}": ["Remove from cart: {t}", "Aus dem Korb entfernen: {t}"],
+    "📤 Отправить список": ["📤 Send list", "📤 Liste senden"], "Убрать купленное": ["Remove bought", "Gekauftes entfernen"],
+    "Очистить корзину": ["Empty cart", "Korb leeren"], "Точно очистить? Нажми ещё раз": ["Sure? Tap again", "Sicher? Nochmal tippen"],
+    "🛒 Список покупок — {d}": ["🛒 Shopping list — {d}", "🛒 Einkaufsliste — {d}"], "Список покупок": ["Shopping list", "Einkaufsliste"],
+    "✓ Список скопирован — вставь его в сообщение.": ["✓ List copied — paste it into a message.", "✓ Liste kopiert – in eine Nachricht einfügen."],
+    "Выдели текст ниже и скопируй:": ["Select the text below and copy it:", "Text unten markieren und kopieren:"],
+    "Обновлено {d} · акций {n}": ["Updated {d} · {n} deals", "Aktualisiert {d} · {n} Aktionen"],
+    "Цены — с сайтов магазинов, обновляются дважды в неделю. Hofer и Lidl показывают онлайн не весь ассортимент, у BIPA срок акции на сайте не указан. Корзина и настройки хранятся только в этом браузере.": ["Prices come from the stores’ websites and are updated twice a week. Hofer and Lidl don’t show their full range online; BIPA doesn’t state deal end dates. Cart and settings are stored only in this browser.", "Preise von den Websites der Geschäfte, zweimal pro Woche aktualisiert. Hofer und Lidl zeigen online nicht das ganze Sortiment, bei BIPA steht kein Aktionsende. Korb und Einstellungen bleiben nur in diesem Browser."],
+    "Загружаю акции…": ["Loading deals…", "Aktionen werden geladen…"],
+    "Не получилось загрузить акции. Проверь интернет и обнови страницу.": ["Couldn’t load the deals. Check your connection and reload.", "Aktionen konnten nicht geladen werden. Internet prüfen und neu laden."],
+    // раздел акций (deals_view.js)
+    "Найти: мандарины, Butter, Billa…": ["Search: apples, Butter, Billa…", "Suchen: Äpfel, Butter, Billa…"],
+    "Поиск по акциям и обычным ценам": ["Search deals and regular prices", "Aktionen und Normalpreise durchsuchen"],
+    "Очистить поиск": ["Clear search", "Suche löschen"],
+    "Убрать из списка покупок": ["Remove from cart", "Aus dem Korb entfernen"],
+    "Добавить в список покупок": ["Add to cart", "In den Korb"],
+    "Акций пока нет.": ["No deals yet.", "Noch keine Aktionen."], "Обновлено: ": ["Updated: ", "Aktualisiert: "],
+    "🛒 В списке покупок: {n}": ["🛒 In cart: {n}", "🛒 Im Korb: {n}"],
+    "🛒 Нажми «+» у акции — она попадёт в список покупок": ["🛒 Tap “+” on a deal to add it to your cart", "🛒 Tippe bei einer Aktion auf „+“ – sie kommt in den Korb"],
+    "Открыть список →": ["Open cart →", "Korb öffnen →"],
+    "Что из акций брать": ["Which deals to buy", "Welche Aktionen sich lohnen"],
+    "Что из акций брать, а что нет": ["Which deals to buy and which not", "Welche Aktionen sich lohnen und welche nicht"],
+    "Продукты, где акция дешевле самой низкой обычной цены того же продукта во всех сетях. «+» — в твой список покупок.": ["Products where the deal beats the lowest regular price of the same product in every chain. “+” adds it to your cart.", "Produkte, bei denen die Aktion unter dem niedrigsten Normalpreis desselben Produkts in allen Ketten liegt. „+“ legt sie in den Korb."],
+    "✅ Есть смысл брать": ["✅ Worth buying", "✅ Lohnt sich"],
+    "Сейчас выгодных акций не нашлось.": ["No good deals right now.", "Gerade keine lohnenden Aktionen."],
+    " (на {n}% дешевле обычной)": [" ({n}% below regular)", " ({n} % unter Normalpreis)"],
+    ", до {d}": [", until {d}", ", bis {d}"], "до {d}": ["until {d}", "bis {d}"],
+    "обычная самая дешёвая: ": ["cheapest regular: ", "billigster Normalpreis: "],
+    "❌ Не имеет смысла брать ({n})": ["❌ Not worth it ({n})", "❌ Lohnt sich nicht ({n})"],
+    "Здесь акция не выгодна: тот же продукт без скидки где-то стоит меньше.": ["These deals don’t pay off: the same product costs less elsewhere even without a discount.", "Diese Aktionen lohnen sich nicht: dasselbe Produkt ist woanders auch ohne Rabatt billiger."],
+    "{n} акц. ({stores}) — {reason}": ["{n} deals ({stores}) — {reason}", "{n} Aktionen ({stores}) – {reason}"],
+    "лучше взять: ": ["better: ", "besser: "],
+    "Акции по запросу «{q}» ({n})": ["Deals for “{q}” ({n})", "Aktionen für „{q}“ ({n})"],
+    "Все акции ({n})": ["All deals ({n})", "Alle Aktionen ({n})"], "Все": ["All", "Alle"],
+    "✅ Выгодные": ["✅ Good deals", "✅ Lohnend"], "⚠️ Без акции дешевле": ["⚠️ Cheaper without deal", "⚠️ Ohne Aktion billiger"],
+    "Магазин": ["Store", "Geschäft"], "Товар": ["Product", "Produkt"], "Упаковка": ["Pack", "Packung"],
+    "Цена / акция": ["Price / deal", "Preis / Aktion"], "За кг / л / шт": ["Per kg / l / pc", "Pro kg / l / Stk."],
+    "био": ["organic", "Bio"],
+    "✅ дешевле обычных": ["✅ cheaper than regular", "✅ billiger als normal"], " на {n}%": [" by {n}%", " um {n} %"],
+    "≈ как обычная цена — выгоды нет": ["≈ same as regular — no saving", "≈ wie Normalpreis – kein Vorteil"],
+    "⚠️ без акции дешевле:": ["⚠️ cheaper without the deal:", "⚠️ ohne Aktion billiger:"],
+    "Обычные цены без акций — ориентир": ["Regular prices without deals — for reference", "Normalpreise ohne Aktion – zur Orientierung"],
+    "Сколько тот же продукт стоит без акции в каждой сети. Нажми на название — все варианты.": ["What the same product costs without a deal in each chain. Tap a name for all options.", "Was dasselbe Produkt ohne Aktion in jeder Kette kostet. Auf den Namen tippen – alle Varianten."],
+    "По продуктам": ["By product", "Nach Produkt"],
+    "За кг / л / шт ↑ дешевле сначала": ["Per kg / l / pc ↑ cheapest first", "Pro kg / l / Stk. ↑ billigste zuerst"],
+    "За кг / л / шт ↓ дороже сначала": ["Per kg / l / pc ↓ priciest first", "Pro kg / l / Stk. ↓ teuerste zuerst"],
+    "Продукт": ["Product", "Produkt"], "{g} — все варианты ({n})": ["{g} — all options ({n})", "{g} – alle Varianten ({n})"],
+    "нет в онлайн-каталоге": ["not in online catalogue", "nicht im Online-Katalog"],
+    "По запросу «{q}» ничего не нашлось — попробуй другое слово или немецкое название.": ["Nothing found for “{q}” — try another word or the German name.", "Nichts gefunden für „{q}“ – versuch ein anderes Wort."],
+    "Все товары": ["All products", "Alle Produkte"], "Категорий: {n}": ["{n} categories", "{n} Kategorien"],
+    "Категории": ["Categories", "Kategorien"], "Готово": ["Done", "Fertig"],
+    "👉 Проведи по таблице пальцем влево — справа ещё магазины": ["👉 Swipe the table left — more stores on the right", "👉 Tabelle nach links wischen – rechts weitere Geschäfte"],
+    "Наверх": ["Back to top", "Nach oben"]
+  };
+
+  // строки из данных: целиком (причины «не брать») и по частям (единицы, условия акции)
+  var WHOLE = {
+    "без акции дешевле": ["cheaper elsewhere without a deal", "woanders ohne Aktion billiger"],
+    "только био — обычный дешевле": ["organic only — regular is cheaper", "nur Bio – konventionell billiger"],
+    "цена как у обычного товара — выгоды нет": ["same as regular price — no saving", "wie Normalpreis – kein Vorteil"],
+    "акция": ["deal", "Aktion"], "распродажа": ["clearance", "Abverkauf"],
+    "постоянно низкая цена": ["permanently low price", "dauerhaft tiefer Preis"]
+  };
+  var UNITS = {
+    "кг": ["kg", "kg"], "г": ["g", "g"], "мл": ["ml", "ml"], "л": ["l", "l"], "м": ["m", "m"],
+    "шт": ["pc", "Stk."], "уп": ["pack", "Pkg."], "рулон": ["roll", "Rolle"], "стирка": ["wash", "WG"]
+  };
+  // [рег. выражение, англ., нем.] — по порядку
+  var PARTS = [
+    [/из них био: (\d+)/g, "organic: $1", "davon Bio: $1"],
+    [/постоянно низкая цена/g, "permanently low price", "dauerhaft tiefer Preis"],
+    [/распродажа/g, "clearance", "Abverkauf"],
+    [/при покупке (\d+) (уп\.|шт\.)/g, "when buying $1", "beim Kauf von $1"],
+    [/при покупке (\d+)/g, "when buying $1", "beim Kauf von $1"],
+    [/цена за штуку/g, "price per item", "Preis pro Stück"],
+    [/от (\d+) шт\./g, "from $1 pcs", "ab $1 Stk."],
+    [/от (\d+) уп\./g, "from $1 packs", "ab $1 Pkg."],
+    [/от (\d+) бутылки/g, "from $1 bottles", "ab $1 Flaschen"],
+    [/от (\d+) банки/g, "from $1 cans", "ab $1 Dosen"],
+    [/от (\d+) стакан\S*/g, "from $1 cups", "ab $1 Becher"],
+    [/от (\d+)/g, "from $1", "ab $1"],
+    [/до (-?\d+ ?%)/g, "up to $1", "bis $1"],
+    [/с Lidl Plus/g, "with Lidl Plus", "mit Lidl Plus"],
+    [/с (\d\d\.\d\d)/g, "from $1", "ab $1"],
+    [/(\d+) ?\+ ?(\d+) бесплатно/g, "$1+$2 free", "$1+$2 gratis"],
+    [/яйца бесплатно/g, "eggs free", "Eier gratis"],
+    [/бесплатно/g, "free", "gratis"],
+    [/(^|, )акция(?=,|$)/g, "$1deal", "$1Aktion"],
+    [/вместо/g, "instead of", "statt"],
+    [/на развес/g, "loose", "lose"],
+    [/напр\./g, "e.g.", "z. B."]
+  ];
+
+  function pick(ru, pair, lang) { return lang === "en" ? pair[0] : lang === "de" ? pair[1] : ru; }
+  function fill(s, v) { return v ? s.replace(/\{(\w+)\}/g, function (m, k) { return k in v ? v[k] : m; }) : s; }
+
+  var I = window.DealsI18n = {
+    langs: LANGS,
+    lang: "ru",
+    data: window.DealsI18n && window.DealsI18n.data || {categories: {}, groups: {}},
+    t: function (s, v) {
+      var tr = UI[s];
+      return fill(tr && I.lang !== "ru" ? pick(s, tr, I.lang) : s, v);
+    },
+    d: function (s) {
+      if (!s || I.lang === "ru") return s;
+      var x = I.data.groups[s] || I.data.categories[s] || WHOLE[s];
+      if (x) return pick(s, x, I.lang);
+      var k = I.lang === "en" ? 1 : 2;
+      PARTS.forEach(function (p) { s = s.replace(p[0], p[k]); });
+      // единицы: «2 кг», «€/кг», «(1 кг = 2,33)» — отдельным словом
+      s = s.replace(/(^|[^а-яё])(кг|мл|г|л|м|шт|уп|рулон|стирка)(?![а-яё])\.?/gi, function (m, pre, u) {
+        return pre + pick(u, UNITS[u.toLowerCase()], I.lang);
+      });
+      return s;
+    },
+    // группа или категория на всех трёх языках — для поиска
+    all: function (s) {
+      var x = I.data.groups[s] || I.data.categories[s];
+      return x ? s + " " + x.join(" ") : s;
+    },
+    set: function (l) {
+      I.lang = LANGS.indexOf(l) === -1 ? "ru" : l;
+      try { localStorage.setItem(KEY, I.lang); } catch (e) { /* без хранилища — до перезагрузки */ }
+      document.documentElement.lang = I.lang;
+    },
+    // язык по умолчанию: сохранённый, иначе по языкам телефона (русский — если он есть среди них)
+    initial: function () {
+      try { var s = localStorage.getItem(KEY); if (LANGS.indexOf(s) !== -1) return s; } catch (e) { /* нет хранилища */ }
+      var ls = (navigator.languages || [navigator.language || "ru"]).map(function (x) { return String(x).slice(0, 2).toLowerCase(); });
+      if (ls.some(function (x) { return x === "ru" || x === "uk" || x === "be"; })) return "ru";
+      if (ls[0] === "de") return "de";
+      if (ls[0] === "en") return "en";
+      return "ru";
+    },
+    // статичная разметка: data-i18n — текст, data-i18n-ph — placeholder, data-i18n-aria — aria-label
+    apply: function (root) {
+      (root || document).querySelectorAll("[data-i18n]").forEach(function (e) { e.textContent = I.t(e.dataset.i18n); });
+      (root || document).querySelectorAll("[data-i18n-ph]").forEach(function (e) { e.placeholder = I.t(e.dataset.i18nPh); });
+      (root || document).querySelectorAll("[data-i18n-aria]").forEach(function (e) { e.setAttribute("aria-label", I.t(e.dataset.i18nAria)); });
+    }
+  };
+  I.lang = I.initial();
+  document.documentElement.lang = I.lang;
+})();
+
+</script>
+
+<script>
+// Раздел «Акции» — общий для личной страницы и приложения «Every Cent Counts» (артефакт и PWA), 2026-09-25.
+// DealsView(box, api) рисует в box: «что брать» (и отдельным свёрнутым списком — что не брать),
+// все акции (фильтры по категории, магазину, выгоде; «+» в корзину) и обычные цены по магазинам.
+//
+// Режимы (2026-09-29): api.view = "all" — всё одной лентой, блоки сворачиваются (личная страница);
+// "buy" | "deals" | "prices" — один раздел (приложение с вкладками), переключается dv.setView(v).
+// Поиск: «мандарины», «Butter», «Billa» — по русскому и немецкому названию, группе, категории и
+// магазину сразу в советах, акциях и обычных ценах. api.searchInput — своё поле (в верхней панели
+// приложения), иначе DealsView ставит поле сам; api.onSearch(query) — сообщить странице о поиске.
+// Языки (2026-09-29): если на странице есть deals_i18n.js (window.DealsI18n) — подписи и данные
+// переводятся на выбранный язык; без него (личная страница) — всё по-русски, как было.
+// api: getDeals() → {updated, sources, items, advice, baseline?}; getBaseline() → [..] | null;
+//      cartKeys() → {key: true}; toggleCart(d); openCart() — перейти к корзине;
+//      emptyText, metaText(deals) — необязательно.
+(function () {
+  var STORES = ["BILLA", "HOFER", "LIDL", "PENNY", "SPAR", "DM", "MÜLLER", "BIPA", "ACTION"];
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  // перевод подписи (шаблон по-русски, {n} — подстановки) и строки из данных
+  function fill(s, v) { return v ? s.replace(/\{(\w+)\}/g, function (m, k) { return k in v ? v[k] : m; }) : s; }
+  function t(s, v) { return window.DealsI18n ? window.DealsI18n.t(s, v) : fill(s, v); }
+  function L(s) { return window.DealsI18n && s ? window.DealsI18n.d(s) : s; }
+  function ru() { return !window.DealsI18n || window.DealsI18n.lang === "ru"; }
+  // второе имя товара: по-русски — перевод названия, по-английски — группа, по-немецки не нужно
+  function subName(d) {
+    if (ru()) return d.product_ru || "";
+    return window.DealsI18n.lang === "en" && d.group ? L(d.group) : "";
+  }
+
+  function dealKey(d) { return [d.store, d.product, d.pack || "", d.valid_to || ""].join("|"); }
+  // акция закончилась (valid_to в прошлом) — не показываем, даже если
+  // данные ещё не пересобраны; дата берётся из браузера, а не из рендера
+  function liveDeal(d) {
+    return !d.valid_to || d.valid_to >= new Date().toISOString().slice(0, 10);
+  }
+
+  // поиск: без регистра, ё = е; «мандарины» находит и «мандарин», и «мандаринов»
+  function norm(s) { return String(s || "").toLowerCase().replace(/ё/g, "е"); }
+  function stem(w) { return w.length > 4 ? w.replace(/[аеиоуыэюяйь]+$/, "") : w; }
+  // синонимы до отсечения окончаний (2026-10-01): «варенье» и «варёная ветчина» дают одну
+  // основу «варен» — без замены поиск варенья находил ветчину
+  var SYNONYMS = [[/^варень/, "джем"], [/^повидл/, "джем"], [/^конфитюр/, "джем"], [/^джемы?$/, "джем"],
+    // сыры и продукты по-русски → немецкое название в магазине (2026-10-01: «эмменталь» не находил Emmentaler)
+    [/^эмментал/, "emmental"], [/^гауд/, "gouda"], [/^камамбер/, "camembert"], [/^бри$/, "brie"],
+    [/^маскарпоне/, "mascarpone"], [/^рикотт/, "ricotta"], [/^горгонзол/, "gorgonzola"], [/^чеддер/, "cheddar"],
+    [/^моцарел/, "mozzarella"], [/^пармезан/, "parmesan"], [/^тильзит/, "tilsiter"], [/^эдам/, "edamer"],
+    [/^нутелл/, "nutella"], [/^памперс/, "pampers"]];
+  function synonym(w) {
+    for (var i = 0; i < SYNONYMS.length; i++) if (SYNONYMS[i][0].test(w)) return SYNONYMS[i][1];
+    return w;
+  }
+  function wordsOf(q) { return norm(q).split(/\s+/).filter(Boolean).map(synonym).map(stem); }
+  function hitWords(ws, parts) {
+    if (!ws.length) return true;
+    var text = norm(parts.join(" "));
+    return ws.every(function (w) { return text.indexOf(w) !== -1; });
+  }
+  // группа/категория на всех языках сразу: «Kaffee» найдёт кофе и в русской версии
+  function allNames(s) { return window.DealsI18n && s ? window.DealsI18n.all(s) : s; }
+  // по чему ищем акцию: оба названия, группа и категория (и в переводах), магазин, пометка
+  function dealParts(d) { return [d.product, d.product_ru, allNames(d.group), allNames(d.category), d.store, d.note]; }
+
+  window.DealsView = function (box, api) {
+    var view = api.view || "all";
+    var dealsStore = "", dealsVerdict = "";
+    // категории — несколько сразу (2026-10-01): {категория: true}; пусто — «Все товары»
+    var dealsCats = {}, baseCats = {}, pickerOpen = "";
+    var baseSort = "", baseOpen = {};
+    var query = "";
+
+    // поле поиска — вне перерисовки (иначе терялся бы фокус при наборе)
+    var input = api.searchInput, clearBtn = null, content = box;
+    if (!input) {
+      var search = el("div", "deals-search");
+      input = el("input");
+      input.type = "search"; input.id = "dealsSearch"; input.autocomplete = "off";
+      input.placeholder = t("Найти: мандарины, Butter, Billa…");
+      input.setAttribute("aria-label", t("Поиск по акциям и обычным ценам"));
+      clearBtn = el("button", "search-clear", "×");
+      clearBtn.type = "button"; clearBtn.setAttribute("aria-label", t("Очистить поиск")); clearBtn.hidden = true;
+      search.appendChild(input); search.appendChild(clearBtn);
+      content = el("div", "deals-content");
+      box.innerHTML = "";
+      box.appendChild(search); box.appendChild(content);
+      clearBtn.onclick = function () { input.value = ""; setQuery(""); input.focus(); };
+    }
+    var timer = null;
+    function setQuery(q) {
+      query = q;
+      if (clearBtn) clearBtn.hidden = !query;
+      if (api.onSearch) api.onSearch(query);
+      render();
+    }
+    input.addEventListener("input", function () {
+      clearTimeout(timer);
+      timer = setTimeout(function () { setQuery(input.value.trim()); }, 150);
+    });
+
+    function words() { return wordsOf(query); }
+    function hit() { return hitWords(words(), Array.prototype.slice.call(arguments)); }
+    function dealHit(d) { return hitWords(words(), dealParts(d)); }
+
+    function baseline() {
+      var deals = api.getDeals();
+      return api.getBaseline() || (deals && deals.baseline) || [];
+    }
+    // порядок категорий = порядок в baseline (он собран по price_groups.CATEGORIES)
+    function catOrder(c) {
+      var seen = [];
+      baseline().forEach(function (r) { if (r.category && seen.indexOf(r.category) === -1) seen.push(r.category); });
+      var i = seen.indexOf(c);
+      return i === -1 ? 99 : i;
+    }
+    function cartBtn(d, keys) {
+      var inCart = !!keys[dealKey(d)];
+      var b = el("button", "cart-add" + (inCart ? " in" : ""), inCart ? "✓" : "+");
+      b.type = "button";
+      b.setAttribute("aria-label", inCart ? t("Убрать из списка покупок") : t("Добавить в список покупок"));
+      b.onclick = function (e) { e.stopPropagation(); api.toggleCart(d); };
+      return b;
+    }
+    function chips(items, current, onPick) {
+      var bar = el("div", "store-filter");
+      items.forEach(function (v) {
+        var b = el("button", "store-btn" + (current === v[0] ? " active" : ""), v[1]);
+        b.type = "button";
+        b.onclick = function () { onPick(v[0]); render(); };
+        bar.appendChild(b);
+      });
+      return bar;
+    }
+
+    // «Все товары ▾» — выпадающее меню категорий с галочками (вместо длинной строки кнопок).
+    // key — какое меню открыто (deals | base): после перерисовки оно остаётся открытым.
+    function catPicker(key, cats, sel) {
+      var n = Object.keys(sel).length;
+      var box = el("div", "cat-picker" + (pickerOpen === key ? " open" : ""));
+      var label = !n ? t("Все товары") : n === 1 ? L(Object.keys(sel)[0]) : t("Категорий: {n}", {n: n});
+      var btn = el("button", "cat-btn" + (n ? " active" : ""));
+      btn.type = "button";
+      btn.setAttribute("aria-expanded", pickerOpen === key ? "true" : "false");
+      btn.appendChild(el("span", "cat-label", label));
+      btn.appendChild(el("span", "arrow", "▾"));
+      btn.onclick = function (e) { e.stopPropagation(); pickerOpen = pickerOpen === key ? "" : key; render(); };
+      box.appendChild(btn);
+      if (pickerOpen === key) {
+        var panel = el("div", "cat-panel");
+        panel.setAttribute("role", "group");
+        panel.setAttribute("aria-label", t("Категории"));
+        panel.onclick = function (e) { e.stopPropagation(); };
+        function opt(text, checked, onChange, cls) {
+          var lab = el("label", "cat-opt" + (cls ? " " + cls : ""));
+          var cb = el("input"); cb.type = "checkbox"; cb.checked = checked;
+          cb.onchange = function () { onChange(cb.checked); render(); };
+          lab.appendChild(cb); lab.appendChild(el("span", null, text));
+          return lab;
+        }
+        panel.appendChild(opt(t("Все товары"), !n, function () { Object.keys(sel).forEach(function (c) { delete sel[c]; }); }, "all"));
+        cats.forEach(function (c) {
+          panel.appendChild(opt(L(c), !!sel[c], function (on) { if (on) sel[c] = true; else delete sel[c]; }));
+        });
+        var done = el("button", "store-btn cat-done", t("Готово")); done.type = "button";
+        done.onclick = function () { pickerOpen = ""; render(); };
+        panel.appendChild(done);
+        box.appendChild(panel);
+      }
+      return box;
+    }
+    // клик мимо открытого меню — закрыть
+    document.addEventListener("click", function () { if (pickerOpen) { pickerOpen = ""; render(); } });
+
+    function render() {
+      var box = content;   // перерисовывается только содержимое, строка поиска остаётся
+      var deals = api.getDeals();
+      var searching = !!words().length;
+      var single = view !== "all" && !searching;   // один раздел приложения
+      var show = {advice: !single || view === "buy", deals: !single || view === "deals", base: !single || view === "prices"};
+      // раскрытые блоки не должны схлопываться при перерисовке
+      var wasOpen = {};
+      box.querySelectorAll("details[data-key]").forEach(function (d) { wasOpen[d.dataset.key] = d.open; });
+      box.innerHTML = "";
+      if (!deals || !(deals.items || []).length) {
+        box.appendChild(el("p", "slot-empty", api.emptyText || t("Акций пока нет.")));
+        return;
+      }
+      box.appendChild(el("p", "deals-meta", api.metaText ? api.metaText(deals)
+        : t("Обновлено: ") + (deals.updated || "—") + (deals.sources ? " · " + deals.sources : "")));
+      var keys = api.cartKeys(), inCart = Object.keys(keys).length;
+      var cartBar = el("div", "cart-bar");
+      cartBar.appendChild(el("span", null, inCart ? t("🛒 В списке покупок: {n}", {n: inCart}) : t("🛒 Нажми «+» у акции — она попадёт в список покупок")));
+      if (inCart) {
+        var go = el("button", "store-btn", t("Открыть список →")); go.type = "button";
+        go.onclick = function () { api.openCart(); };
+        cartBar.appendChild(go);
+      }
+      box.appendChild(cartBar);
+      function details(key, title, openByDefault) {
+        var d = el("details", "baseline");
+        d.dataset.key = key;
+        d.open = key in wasOpen ? wasOpen[key] : openByDefault;
+        d.appendChild(el("summary", null, title));
+        return d;
+      }
+      // блок: в одном разделе — заголовок и содержимое, в общей ленте — сворачиваемый
+      function block(key, title, openByDefault) {
+        if (!single) {
+          var d = details(key, title, openByDefault);
+          if (searching) d.open = true;
+          return d;
+        }
+        var s = el("section", "deals-block");
+        s.appendChild(el("h2", "block-h", title));
+        return s;
+      }
+
+      // 1) что брать; что не брать — отдельным свёрнутым списком под ним
+      var adv = deals.advice;
+      var nothing = true;
+      if (show.advice && adv && ((adv.buy || []).length || (adv.skip || []).length)) {
+        var buyList = (adv.buy || []).filter(function (b) { return hit(allNames(b.group)) || b.deals.some(dealHit); });
+        var skipList = (adv.skip || []).filter(function (s) { return hit(allNames(s.group), s.stores.join(" ")); });
+        var ad = block("advice", single ? t("Что из акций брать") : t("Что из акций брать, а что нет"), true);
+        if (single) ad.appendChild(el("p", "block-hint", t("Продукты, где акция дешевле самой низкой обычной цены того же продукта во всех сетях. «+» — в твой список покупок.")));
+        var colBuy = el("div", "advice-col");
+        colBuy.appendChild(el("h4", "advice-h good", t("✅ Есть смысл брать") + (buyList.length ? " (" + buyList.length + ")" : "")));
+        if (!buyList.length) colBuy.appendChild(el("p", "slot-empty", t("Сейчас выгодных акций не нашлось.")));
+        buyList.forEach(function (b) {
+          var it = el("div", "advice-item");
+          it.appendChild(el("div", "advice-group", L(b.group)));
+          b.deals.filter(liveDeal).forEach(function (x, i) {
+            if (i > 1) return;
+            var line = x.store + ": " + (ru() ? (x.product_ru || x.product) : x.product) + " — " + L(x.unit) +
+              (x.saving ? t(" (на {n}% дешевле обычной)", {n: x.saving}) : "") + (x.until ? t(", до {d}", {d: x.until}) : "");
+            var row = el("div", "advice-line with-cart");
+            row.appendChild(cartBtn(x, keys));
+            row.appendChild(el("span", null, line));
+            it.appendChild(row);
+          });
+          if (b.regular) it.appendChild(el("div", "deal-note", t("обычная самая дешёвая: ") + L(b.regular)));
+          colBuy.appendChild(it);
+        });
+        ad.appendChild(colBuy);
+        if (skipList.length) {
+          var sk = details("skip", t("❌ Не имеет смысла брать ({n})", {n: skipList.length}), searching);
+          sk.classList.add("skip-list");
+          var colSkip = el("div", "advice-col");
+          colSkip.appendChild(el("p", "block-hint", t("Здесь акция не выгодна: тот же продукт без скидки где-то стоит меньше.")));
+          skipList.forEach(function (s) {
+            var it = el("div", "advice-item");
+            it.appendChild(el("div", "advice-group", L(s.group)));
+            it.appendChild(el("div", "advice-line", t("{n} акц. ({stores}) — {reason}", {n: s.count, stores: s.stores.join(", "), reason: L(s.reason)})));
+            if (s.regular) it.appendChild(el("div", "deal-note", t("лучше взять: ") + L(s.regular)));
+            colSkip.appendChild(it);
+          });
+          sk.appendChild(colSkip);
+          ad.appendChild(sk);
+        }
+        if (!searching || buyList.length || skipList.length) { box.appendChild(ad); nothing = false; }
+      }
+
+      // 2) все акции таблицей (на телефоне — карточками)
+      var found = deals.items.filter(function (d) { return liveDeal(d) && dealHit(d); });
+      if (show.deals) {
+        var stores = [];
+        deals.items.forEach(function (d) { if (stores.indexOf(d.store) === -1) stores.push(d.store); });
+        stores.sort(function (a, b) { return STORES.indexOf(a) - STORES.indexOf(b); });
+        // категории — те же, что в обычных ценах (как на табличках в супермаркете)
+        var dcats = [];
+        deals.items.forEach(function (d) { var c = d.category || "Прочее"; if (dcats.indexOf(c) === -1) dcats.push(c); });
+        dcats.sort(function (a, b) { return catOrder(a) - catOrder(b); });
+        var all = block("all", searching ? t("Акции по запросу «{q}» ({n})", {q: query, n: found.length})
+                                         : t("Все акции ({n})", {n: found.length}), false);
+        all.appendChild(catPicker("deals", dcats, dealsCats));
+        all.appendChild(chips([["", t("Все")]].concat(stores.map(function (s) { return [s, s]; })), dealsStore, function (v) { dealsStore = v; }));
+        all.appendChild(chips([["", t("Все")], ["good", t("✅ Выгодные")], ["bad", t("⚠️ Без акции дешевле")]], dealsVerdict, function (v) { dealsVerdict = v; }));
+        var wrap = el("div", "table-wrap");
+        var table = el("table", "deals-table");
+        // ширины столбцов — по содержимому (CSS table-layout: auto), без colgroup
+        var thead = el("thead"), hr = el("tr");
+        ["", t("Магазин"), t("Товар"), t("Упаковка"), t("Цена / акция"), t("За кг / л / шт")].forEach(function (h) { hr.appendChild(el("th", null, h)); });
+        thead.appendChild(hr); table.appendChild(thead);
+        var tb = el("tbody");
+        deals.items.forEach(function (d) {
+          if (!liveDeal(d) || !dealHit(d)) return;
+          if (dealsStore && d.store !== dealsStore) return;
+          // фильтр категорий работает и при поиске: «мандарин» + «Овощи и фрукты»
+          if (Object.keys(dealsCats).length && !dealsCats[d.category || "Прочее"]) return;
+          if (dealsVerdict === "good" && d.verdict !== "good") return;
+          if (dealsVerdict === "bad" && d.verdict !== "bad" && d.verdict !== "same") return;
+          var tr = el("tr", keys[dealKey(d)] ? "in-cart" : "");
+          var ct = el("td", "deal-cart"); ct.appendChild(cartBtn(d, keys)); tr.appendChild(ct);
+          tr.appendChild(el("td", "deal-store", d.store));
+          var name = el("td", "deal-name");
+          name.appendChild(el("div", "deal-de", d.product));
+          var sub = subName(d);
+          if (sub || d.bio) name.appendChild(el("div", "deal-ru", sub + (d.bio ? (sub ? " · " : "") + t("био") : "")));
+          tr.appendChild(name);
+          tr.appendChild(el("td", "deal-pack", L(d.pack) || "—"));
+          var pr = el("td", "deal-price");
+          pr.appendChild(el("div", null, L(d.price) || "—"));
+          var extra = L(d.note || "") + (d.until ? (d.note ? " · " : "") + t("до {d}", {d: d.until}) : "");
+          if (extra) pr.appendChild(el("div", "deal-note", extra));
+          // история цен (2026-09-28): «фальшивая скидка» или самая низкая цена за N недель
+          if (d.history) pr.appendChild(el("div", "verdict " + (d.fake_discount ? "bad" : "good"), L(d.history)));
+          tr.appendChild(pr);
+          var un = el("td", "deal-unit");
+          un.appendChild(el("div", "unit-val", L(d.unit) || "—"));
+          if (d.verdict === "good") un.appendChild(el("div", "verdict good", t("✅ дешевле обычных") + (d.saving ? t(" на {n}%", {n: d.saving}) : "")));
+          else if (d.verdict === "same") un.appendChild(el("div", "verdict same", t("≈ как обычная цена — выгоды нет")));
+          else if (d.verdict === "bad") {
+            un.appendChild(el("div", "verdict bad", t("⚠️ без акции дешевле:")));
+            un.appendChild(el("div", "deal-note", L(d.cheaper)));
+          }
+          tr.appendChild(un);
+          tb.appendChild(tr);
+        });
+        table.appendChild(tb); wrap.appendChild(table);
+        all.appendChild(wrap);
+        if (!searching || found.length) { box.appendChild(all); nothing = false; }
+      }
+
+      // 3) ориентир: самые дешёвые обычные цены — сортировка и категории
+      var base = baseline();
+      if (show.base && base.length) {
+        var det = block("base", t("Обычные цены без акций — ориентир"), false);
+        if (single) det.appendChild(el("p", "block-hint", t("Сколько тот же продукт стоит без акции в каждой сети. Нажми на название — все варианты.")));
+        var cats = [];
+        base.forEach(function (r) { if (r.category && cats.indexOf(r.category) === -1) cats.push(r.category); });
+        det.appendChild(catPicker("base", cats, baseCats));
+        if (!searching) {
+          det.appendChild(chips([["", t("По продуктам")], ["asc", t("За кг / л / шт ↑ дешевле сначала")], ["desc", t("За кг / л / шт ↓ дороже сначала")]],
+            baseSort, function (v) { baseSort = v; }));
+        }
+        var nCats = Object.keys(baseCats).length;
+        var rows = base.filter(function (r) {
+          if (nCats && !baseCats[r.category]) return false;
+          return !searching || hit(allNames(r.group), allNames(r.category)) || (r.options || []).some(function (o) { return hit(o.product, o.store); });
+        });
+        if (baseSort) rows = rows.slice().sort(function (a, b) {
+          return baseSort === "asc" ? a.unit_value - b.unit_value : b.unit_value - a.unit_value;
+        });
+        // по столбцу на магазин, где есть обычные цены
+        var cols = STORES.filter(function (s) { return rows.some(function (r) { return (r.by_store || {})[s]; }); });
+        var bw = el("div", "table-wrap"), bt = el("table", "deals-table base-table"), bh = el("tr");
+        [t("Продукт")].concat(cols).forEach(function (h) { bh.appendChild(el("th", null, h)); });
+        var bhead = el("thead"); bhead.appendChild(bh); bt.appendChild(bhead);
+        var bb = el("tbody");
+        rows.forEach(function (r) {
+          var tr = el("tr");
+          var g = el("td", "deal-store");
+          var opts = r.options || [], gname = L(r.group);
+          if (opts.length > 1) {
+            // название само раскрывает варианты; стрелка ▾ поворачивается, когда открыто
+            var tg = el("button", "group-toggle" + (baseOpen[r.group] ? " open" : ""), gname);
+            tg.type = "button";
+            tg.setAttribute("aria-label", t("{g} — все варианты ({n})", {g: gname, n: opts.length}));
+            tg.setAttribute("aria-expanded", baseOpen[r.group] ? "true" : "false");
+            tg.appendChild(el("span", "arrow", "▾"));
+            tg.onclick = function () { baseOpen[r.group] = !baseOpen[r.group]; render(); };
+            g.appendChild(tg);
+          } else {
+            g.appendChild(document.createTextNode(gname));
+          }
+          if (nCats !== 1) g.appendChild(el("div", "deal-note", L(r.category || "")));
+          tr.appendChild(g);
+          var bs = r.by_store || {};
+          cols.forEach(function (s) {
+            var c = bs[s];
+            var td = el("td", "store-cell" + (c && c.product === r.product && c.store === r.store ? " best" : ""));
+            if (c) {
+              td.appendChild(el("div", "unit-val", L(c.unit_str)));
+              td.appendChild(el("div", "deal-note", c.product + (c.pack ? ", " + L(c.pack) : "") + " — " + c.price));
+            } else {
+              td.appendChild(el("div", "deal-note", s === "HOFER" ? t("нет в онлайн-каталоге") : "—"));
+            }
+            tr.appendChild(td);
+          });
+          bb.appendChild(tr);
+          if (baseOpen[r.group]) {
+            var ot = el("tr", "opts-row"), otd = el("td");
+            otd.colSpan = 1 + cols.length;
+            opts.forEach(function (o) {
+              otd.appendChild(el("div", "opt-line", L(o.unit_str) + " — " + o.store + ": " + o.product + (o.pack ? ", " + L(o.pack) : "") + " — " + o.price));
+            });
+            ot.appendChild(otd);
+            bb.appendChild(ot);
+          }
+        });
+        bt.appendChild(bb); bw.appendChild(bt);
+        // таблица шире экрана: подсказка «листай вбок» и тень у правого края (2026-10-01)
+        var swipe = el("p", "swipe-hint", t("👉 Проведи по таблице пальцем влево — справа ещё магазины"));
+        swipe.hidden = true;
+        det.appendChild(swipe);
+        det.appendChild(bw);
+        bw.classList.add("scroll-x");
+        requestAnimationFrame(function () {
+          var more = bw.scrollWidth > bw.clientWidth + 4;
+          swipe.hidden = !more;
+          bw.classList.toggle("more-right", more);
+        });
+        bw.addEventListener("scroll", function () {
+          var end = bw.scrollLeft + bw.clientWidth >= bw.scrollWidth - 4;
+          bw.classList.toggle("more-right", !end);
+          if (bw.scrollLeft > 20) swipe.hidden = true;
+        }, {passive: true});
+        if (!searching || rows.length) { box.appendChild(det); nothing = false; }
+      }
+      if (searching && nothing) {
+        box.appendChild(el("p", "slot-empty", t("По запросу «{q}» ничего не нашлось — попробуй другое слово или немецкое название.", {q: query})));
+      }
+    }
+    return {
+      render: render,
+      setView: function (v) { view = v; render(); },
+      query: function () { return query; },
+      clearSearch: function () { input.value = ""; setQuery(""); },
+      search: function (q) { input.value = q; setQuery(q); }
+    };
+  };
+  window.DealsView.dealKey = dealKey;
+  window.DealsView.liveDeal = liveDeal;
+  // те же правила поиска — для отслеживаемых продуктов на главной приложения
+  window.DealsView.matches = function (q, d) { return hitWords(wordsOf(q), dealParts(d)); };
+
+  // кнопка «↑ наверх» в правом нижнем углу — появляется, когда страница прокручена (2026-09-29)
+  window.DealsView.toTop = function () {
+    if (document.querySelector(".to-top")) return;
+    var b = el("button", "to-top", "↑");
+    b.type = "button"; b.hidden = true;
+    b.setAttribute("aria-label", t("Наверх"));
+    b.onclick = function () {
+      var smooth = !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+      window.scrollTo({top: 0, behavior: smooth ? "smooth" : "auto"});
+    };
+    document.body.appendChild(b);
+    var tick = false;
+    window.addEventListener("scroll", function () {
+      if (tick) return;
+      tick = true;
+      requestAnimationFrame(function () { b.hidden = window.scrollY < 600; tick = false; });
+    }, {passive: true});
+  };
+})();
+
+</script>
+<script>
+// Приложение «Every Cent Counts»: вкладки, корзина, отслеживание, настройки, отзыв (2026-09-29).
+// Разметка — app_shell.html; раздел акций — DealsView (deals_view.js); переводы — DealsI18n.
+// startDeals() вызывается, когда данные на месте: в артефакте сразу, в PWA — после data.json.
+function startDeals() {
+  var I = window.DealsI18n;
+  function t(s, v) { return I.t(s, v); }
+  function load(k, d) { try { var v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } }
+  function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* приватный режим — до перезагрузки */ } }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function $(id) { return document.getElementById(id); }
+  var CART = "viennaDealsCart", WATCH = "viennaDealsWatch", THEME = "viennaDealsTheme";
+  var cart = load(CART, []), watch = load(WATCH, []);
+  if (!Array.isArray(cart)) cart = [];
+  if (!Array.isArray(watch)) watch = [];
+  function save() { store(CART, cart); }
+  var today = new Date().toISOString().slice(0, 10);
+  var VIEWS = {home: "Главная", buy: "Что брать", deals: "Все акции", prices: "Обычные цены", list: "Корзина"};
+  var current = "home", beforeSearch = "home";
+  function locale() { return {ru: "ru-RU", en: "en-GB", de: "de-AT"}[I.lang]; }
+  function dayMonth(iso) { return new Date(iso + "T12:00:00").toLocaleDateString(locale(), {day: "numeric", month: "long"}); }
+  function live() { return DEALS.items.filter(DealsView.liveDeal); }
+
+  // ---- корзина
+  function keys() { var k = {}; cart.forEach(function (i) { k[i.key] = true; }); return k; }
+  function toggle(d) {
+    var key = DealsView.dealKey(d), n = cart.length;
+    cart = cart.filter(function (i) { return i.key !== key; });
+    if (cart.length === n) {
+      var ru = I.lang === "ru" && d.product_ru && d.product_ru.charAt(0) !== "~" ? d.product_ru + " — " : "";
+      cart.push({key: key, store: d.store, t: ru + d.product + (d.pack ? ", " + I.d(d.pack) : ""), done: false,
+                 until: d.valid_to || "", deal: I.d(d.price || "") + (d.unit ? " · " + I.d(d.unit) : "") + (d.until ? " · " + t("до {d}", {d: d.until}) : "")});
+    }
+    save(); renderAll();
+  }
+  var q = $("q"), qClear = $("qClear");
+  var dv = DealsView($("dealsList"), {
+    view: "buy", searchInput: q,
+    getDeals: function () { return DEALS; },
+    getBaseline: function () { return null; },
+    cartKeys: keys, toggleCart: toggle,
+    openCart: function () { nav("list"); },
+    metaText: function (d) { return t("Обновлено {d} · акций {n}", {d: d.updated.split("-").reverse().slice(0, 2).join("."), n: live().length}); },
+    // поиск из любого раздела: печатаешь — показываются результаты; очистила — вернулась, где была
+    onSearch: function (query) {
+      qClear.hidden = !query;
+      if (query) {
+        if (current !== "search") beforeSearch = current;
+        current = "search";
+        $("view-home").hidden = true; $("view-list").hidden = true; $("view-deals").hidden = false;
+        title(); markTabs("");
+      } else if (current === "search") {
+        go(beforeSearch);
+      }
+    }
+  });
+  qClear.onclick = function () { dv.clearSearch(); q.focus(); };
+
+  function renderCart() {
+    var box = $("view-list");
+    box.innerHTML = "";
+    box.appendChild(el("h2", "block-h", t("Корзина")));
+    if (!cart.length) {
+      box.appendChild(el("p", "note", t("Здесь пусто. Нажми «+» у акции, и она появится здесь, по магазинам.")));
+      var goBuy = el("a", "store-btn", t("✅ Посмотреть, что брать →")); goBuy.href = "#buy"; goBuy.dataset.view = "buy";
+      box.appendChild(goBuy);
+      return;
+    }
+    var stores = [];
+    cart.forEach(function (i) { if (stores.indexOf(i.store) === -1) stores.push(i.store); });
+    stores.forEach(function (s) {
+      var sec = el("div", "cart-sec");
+      sec.appendChild(el("h3", null, s));
+      var ul = el("ul", "cart-items");
+      cart.forEach(function (it) {
+        if (it.store !== s) return;
+        var li = el("li", it.done ? "done" : "");
+        var cb = el("input"); cb.type = "checkbox"; cb.checked = !!it.done; cb.id = "c-" + cart.indexOf(it);
+        cb.setAttribute("aria-label", t("Куплено"));
+        cb.onchange = function () { it.done = cb.checked; save(); renderCart(); counts(); };
+        var tx = el("div", "t");
+        tx.appendChild(el("div", null, it.t));
+        if (it.deal) tx.appendChild(el("span", "deal-tag", it.deal));
+        if (it.until && it.until < today) tx.appendChild(el("span", "deal-tag expired", t("акция закончилась")));
+        var x = el("button", "cart-x", t("Убрать")); x.type = "button"; x.setAttribute("aria-label", t("Убрать из корзины: {t}", {t: it.t}));
+        x.onclick = function () { cart = cart.filter(function (i) { return i !== it; }); save(); renderAll(); };
+        li.appendChild(cb); li.appendChild(tx); li.appendChild(x);
+        ul.appendChild(li);
+      });
+      sec.appendChild(ul);
+      box.appendChild(sec);
+    });
+    var act = el("div", "cart-actions");
+    var send = el("button", "store-btn primary", t("📤 Отправить список")); send.type = "button";
+    send.onclick = function () { shareList(box); };
+    act.appendChild(send);
+    if (cart.some(function (i) { return i.done; })) {
+      var clr = el("button", "store-btn", t("Убрать купленное")); clr.type = "button";
+      clr.onclick = function () { cart = cart.filter(function (i) { return !i.done; }); save(); renderAll(); };
+      act.appendChild(clr);
+    }
+    // очистить всё — с подтверждением прямо на кнопке (confirm() в артефакте не работает)
+    var wipe = el("button", "store-btn danger", t("Очистить корзину")); wipe.type = "button";
+    wipe.onclick = function () {
+      if (wipe.dataset.sure) { cart = []; save(); renderAll(); return; }
+      wipe.dataset.sure = "1"; wipe.textContent = t("Точно очистить? Нажми ещё раз");
+      setTimeout(function () { if (wipe.isConnected) { delete wipe.dataset.sure; wipe.textContent = t("Очистить корзину"); } }, 4000);
+    };
+    act.appendChild(wipe);
+    box.appendChild(act);
+  }
+
+  // список текстом: по магазинам, без купленного — чтобы переслать в мессенджер
+  function listText() {
+    var left = cart.filter(function (i) { return !i.done; });
+    var stores = [];
+    left.forEach(function (i) { if (stores.indexOf(i.store) === -1) stores.push(i.store); });
+    var lines = [t("🛒 Список покупок — {d}", {d: new Date().toLocaleDateString(locale(), {day: "numeric", month: "long"})})];
+    stores.forEach(function (s) {
+      lines.push("", s);
+      left.forEach(function (i) {
+        if (i.store === s) lines.push("☐ " + i.t + (i.deal ? " — " + i.deal.split(" · ")[0] : ""));
+      });
+    });
+    return lines.join("\n");
+  }
+  function shareList(box) {
+    var text = listText();
+    var old = box.querySelector(".share-area");
+    if (old) old.remove();
+    var area = el("div", "share-area");
+    function show(msg, withText) {
+      area.innerHTML = "";
+      area.appendChild(el("p", "share-msg", msg));
+      if (withText) {
+        var ta = el("textarea", "share-box"); ta.value = text; ta.readOnly = true; ta.id = "shareText";
+        area.appendChild(ta);
+        setTimeout(function () { ta.focus(); ta.select(); }, 0);
+      }
+      box.appendChild(area);
+    }
+    function copy() {
+      try {
+        navigator.clipboard.writeText(text).then(function () {
+          show(t("✓ Список скопирован — вставь его в сообщение."), false);
+        }, function () { show(t("Выдели текст ниже и скопируй:"), true); });
+      } catch (e) { show(t("Выдели текст ниже и скопируй:"), true); }
+    }
+    // телефон: системное меню «Поделиться» (WhatsApp, Telegram…); иначе — в буфер обмена
+    if (navigator.share) {
+      navigator.share({title: t("Список покупок"), text: text}).catch(function (e) {
+        if (!e || e.name !== "AbortError") copy();
+      });
+      return;
+    }
+    copy();
+  }
+
+  // ---- главная: счётчики на кнопках и отслеживаемые продукты
+  function counts() {
+    var left = cart.filter(function (i) { return !i.done; }).length;
+    var buy = ((DEALS.advice || {}).buy || []).length, n = live().length, chains = {};
+    DEALS.items.forEach(function (d) { chains[d.store] = 1; });
+    function set(sel, txt) { document.querySelectorAll(sel).forEach(function (e) { e.textContent = txt; }); }
+    set('[data-count="list"]', left ? String(left) : "");
+    set('[data-home="buy"]', buy ? t("{n} продуктов дешевле обычного", {n: buy}) : t("где акция правда дешевле"));
+    set('[data-home="deals"]', t("{n} акций в {s} сетях", {n: n, s: Object.keys(chains).length}));
+    set('[data-home="list"]', left ? t("в корзине: {n}", {n: left}) : t("пока пусто"));
+  }
+  function renderWatch() {
+    var box = $("watchBox");
+    box.innerHTML = "";
+    box.appendChild(el("h2", null, t("👀 Отслеживаю")));
+    if (!watch.length) {
+      box.appendChild(el("p", "hint", t("Следи за продуктами: добавь, например, «кофе» или «Butter» — акции на них будут здесь.")));
+      var b = el("button", "store-btn", t("Выбрать продукты")); b.type = "button"; b.style.marginTop = "8px";
+      b.onclick = function () { openSheet("settings"); setTimeout(function () { $("watchIn").focus(); }, 50); };
+      box.appendChild(b);
+      return;
+    }
+    var ul = el("ul", "watch-list"), ds = live();
+    watch.forEach(function (w) {
+      var m = ds.filter(function (d) { return DealsView.matches(w, d); });
+      // сначала выгодные, потом по скидке
+      m.sort(function (a, b) { return (b.verdict === "good") - (a.verdict === "good") || (b.saving || 0) - (a.saving || 0); });
+      var li = el("li"), row = el("button", "watch-row"); row.type = "button";
+      row.appendChild(el("span", "w", w));
+      row.appendChild(el("span", "n" + (m.length ? "" : " none"), m.length ? t("{n} акц.", {n: m.length}) : t("сейчас акций нет")));
+      if (m.length) {
+        var d = m[0];
+        row.appendChild(el("span", "best", (d.verdict === "good" ? "✅ " : "") + d.store + ": " + d.product + " — " + I.d(d.price) + (d.unit ? " · " + I.d(d.unit) : "")));
+      }
+      row.onclick = function () { dv.search(w); window.scrollTo(0, 0); };
+      li.appendChild(row); ul.appendChild(li);
+    });
+    box.appendChild(ul);
+  }
+  function renderChips() {
+    var box = $("watchChips");
+    box.innerHTML = "";
+    watch.forEach(function (w) {
+      var c = el("span", "chip"); c.appendChild(document.createTextNode(w));
+      var x = el("button", null, "×"); x.type = "button"; x.setAttribute("aria-label", t("Убрать «{w}»", {w: w}));
+      x.onclick = function () { watch = watch.filter(function (v) { return v !== w; }); store(WATCH, watch); renderChips(); renderWatch(); };
+      c.appendChild(x); box.appendChild(c);
+    });
+  }
+  $("watchForm").onsubmit = function (e) {
+    e.preventDefault();
+    var inp = $("watchIn");
+    inp.value.split(",").forEach(function (w) {
+      w = w.trim();
+      if (w && !watch.some(function (v) { return v.toLowerCase() === w.toLowerCase(); })) watch.push(w);
+    });
+    inp.value = ""; store(WATCH, watch); renderChips(); renderWatch();
+  };
+
+  // ---- окна снизу: настройки, отзыв, «спасибо»
+  var back = $("sheetBack"), lastFocus = null;
+  function openSheet(name) {
+    lastFocus = document.activeElement;
+    back.hidden = false;
+    back.querySelectorAll(".sheet").forEach(function (s) { s.hidden = s.id !== "sheet-" + name; });
+    var x = back.querySelector("#sheet-" + name + " .sheet-x");
+    if (x) x.focus();
+    document.body.style.overflow = "hidden";
+  }
+  function closeSheet() {
+    back.hidden = true; document.body.style.overflow = "";
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  document.querySelectorAll("[data-sheet]").forEach(function (b) { b.onclick = function () { openSheet(b.dataset.sheet); }; });
+  back.addEventListener("click", function (e) { if (e.target === back || e.target.closest("[data-close]")) closeSheet(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !back.hidden) closeSheet(); });
+
+  // язык
+  function segActive(box, attr, v) { box.querySelectorAll("[" + attr + "]").forEach(function (b) { b.classList.toggle("active", b.getAttribute(attr) === v); }); }
+  $("langSeg").onclick = function (e) {
+    var b = e.target.closest("[data-lang]"); if (!b) return;
+    I.set(b.dataset.lang); applyLang();
+  };
+  // тема: авто (как в телефоне) / светлая / тёмная
+  var metas = Array.prototype.slice.call(document.querySelectorAll('meta[name="theme-color"]'));
+  metas.forEach(function (m) { m.dataset.orig = m.content; });
+  function setTheme(v, persist) {
+    var root = document.documentElement;
+    if (v === "light" || v === "dark") root.setAttribute("data-theme", v); else root.removeAttribute("data-theme");
+    metas.forEach(function (m) { m.content = v === "dark" ? "#181816" : v === "light" ? "#EDEBE6" : m.dataset.orig; });
+    if (persist) { try { if (v === "auto") localStorage.removeItem(THEME); else localStorage.setItem(THEME, v); } catch (e) { /* нет хранилища */ } }
+    segActive($("themeSeg"), "data-theme-set", v);
+  }
+  $("themeSeg").onclick = function (e) {
+    var b = e.target.closest("[data-theme-set]"); if (b) setTheme(b.dataset.themeSet, true);
+  };
+  setTheme(document.documentElement.getAttribute("data-theme") || "auto", false);
+
+  // отзыв (2026-09-29): человек выбирает, куда написать — форма, почта, Telegram, WhatsApp.
+  // Контакты на экране не показываются: кнопка сразу открывает письмо или чат.
+  var cfg = $("appCfg").dataset, fbKind = "bug";
+  $("fbSeg").onclick = function (e) {
+    var b = e.target.closest("[data-fb]"); if (!b) return;
+    fbKind = b.dataset.fb; segActive($("fbSeg"), "data-fb", fbKind);
+  };
+  // 2026-09-30: есть Google-форма — только она (все отзывы в одной таблице); иначе — почта/чаты
+  document.querySelectorAll("#fbChannels [data-ch]").forEach(function (b) {
+    b.hidden = !cfg[b.dataset.ch] || (!!cfg.form && b.dataset.ch !== "form");
+  });
+  function fbHint() {
+    $("fbHint").textContent = cfg.form ? t("Откроется Google-форма. Текст, написанный здесь, скопируется — вставь его в форму.")
+                                       : t("Нажми, где тебе удобнее, — откроется письмо или чат, текст уже будет там.");
+  }
+  function openUrl(url) {
+    var a = el("a"); a.href = url; a.target = "_blank"; a.rel = "noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  $("fbChannels").onclick = function (e) {
+    var b = e.target.closest("[data-ch]"); if (!b) return;
+    var kind = t({bug: "🐞 Ошибка", idea: "💡 Предложение", other: "💬 Другое"}[fbKind]);
+    var text = $("fbText").value.trim();
+    var msg = kind + " — " + "Every Cent Counts" + (text ? "\n\n" + text : "\n\n");
+    var ch = b.dataset.ch, v = cfg[ch];
+    if (ch === "email") {
+      openUrl("mailto:" + v + "?subject=" + encodeURIComponent(kind + " — " + "Every Cent Counts") + "&body=" + encodeURIComponent(text));
+    } else if (ch === "whatsapp") {
+      openUrl("https://wa.me/" + v + "?text=" + encodeURIComponent(msg));
+    } else if (ch === "telegram") {
+      // Telegram не умеет подставлять текст в личный чат — кладём его в буфер обмена
+      try { if (text && navigator.clipboard) navigator.clipboard.writeText(msg).catch(function () {}); } catch (err) { /* без буфера */ }
+      openUrl("https://t.me/" + v);
+      if (text) { $("fbHint").textContent = t("Текст скопирован — вставь его в чат Telegram."); return; }
+    } else {
+      // Google-форма: текст в неё сам не подставится — кладём его в буфер обмена
+      try { if (text && navigator.clipboard) navigator.clipboard.writeText(msg).catch(function () {}); } catch (err) { /* без буфера */ }
+      openUrl(v);
+      if (text) { $("fbHint").textContent = t("Текст скопирован — вставь его в форму."); return; }
+    }
+    $("fbHint").textContent = t("Спасибо! 💚");
+  };
+
+  // «спасибо»: ссылка есть — кнопка, нет — «скоро появится»
+  var dl = $("donateLink"), hasDonate = /^https?:/.test(dl.getAttribute("href") || "");
+  dl.hidden = !hasDonate; $("donateSoon").hidden = hasDonate;
+
+  // ссылка на приложение — чтобы быстро переслать друзьям
+  var cp = $("copyLink"), url = cp.dataset.url;
+  if (!url) cp.hidden = true;
+  cp.onclick = function () {
+    function done(txt) { cp.textContent = txt; setTimeout(function () { cp.textContent = t("🔗 Скопировать ссылку"); }, 2500); }
+    try {
+      navigator.clipboard.writeText(url).then(function () { done(t("✓ Ссылка скопирована")); }, function () { done(url); });
+    } catch (e) { done(url); }
+  };
+
+  // ---- разделы: у каждого свой адрес (#buy…), «Назад» на телефоне работает
+  function markTabs(v) {
+    document.querySelectorAll(".tab").forEach(function (a) {
+      var on = a.dataset.view === v;
+      a.classList.toggle("active", on);
+      if (on) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+    });
+  }
+  function title() {
+    $("here").textContent = current === "search" ? t("Поиск") : current === "home" ? "Every Cent Counts" : t(VIEWS[current]);
+  }
+  function go(v) {
+    if (!VIEWS[v]) v = "home";
+    if (dv.query()) dv.clearSearch();
+    current = v;
+    $("view-home").hidden = v !== "home";
+    $("view-list").hidden = v !== "list";
+    $("view-deals").hidden = ["buy", "deals", "prices"].indexOf(v) === -1;
+    if (["buy", "deals", "prices"].indexOf(v) !== -1) dv.setView(v);
+    markTabs(v); title();
+    window.scrollTo(0, 0);
+  }
+  function nav(v) {
+    try { if (location.hash !== "#" + v) history.pushState(null, "", "#" + v); } catch (err) { /* без истории — просто переключаем */ }
+    go(v);
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[data-view]");
+    if (!a) return;
+    e.preventDefault();
+    nav(a.dataset.view);
+  });
+  window.addEventListener("popstate", function () { go((location.hash || "").slice(1)); });
+  window.addEventListener("hashchange", function () { var v = (location.hash || "").slice(1); if (v !== current) go(v); });
+
+  function renderAll() { dv.render(); renderCart(); counts(); renderWatch(); }
+  // перевод всего, что на экране
+  function applyLang() {
+    I.apply();
+    document.title = "Every Cent Counts";
+    $("homeSub").textContent = t("Акции супермаркетов и дрогерий Вены — только те, что правда дешевле") + " · " + t("обновлено {d}", {d: dayMonth(DEALS.updated)});
+    segActive($("langSeg"), "data-lang", I.lang);
+    var up = document.querySelector(".to-top");
+    if (up) up.setAttribute("aria-label", t("Наверх"));
+    fbHint(); renderChips(); title(); renderAll();
+  }
+  DealsView.toTop();
+  applyLang();
+  go((location.hash || "").slice(1));
+}
+
+</script>
+<script>
+var DEALS = null;
+(function () {
+  var t = function (s) { return window.DealsI18n ? DealsI18n.t(s) : s; };
+  var box = document.getElementById("dealsList"), home = document.getElementById("watchBox");
+  home.textContent = t("Загружаю акции…");
+  fetch("data.json", {cache: "no-cache"})
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (d) { DEALS = d; startDeals(); })
+    .catch(function () { home.textContent = box.textContent = t("Не получилось загрузить акции. Проверь интернет и обнови страницу."); });
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
+  // установка — в настройках: Android/Chrome — своя кнопка; iPhone — подсказка про «На экран Домой»
+  var standalone = window.matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+  var slot = document.getElementById("installSlot");
+  window.addEventListener("beforeinstallprompt", function (e) {
+    e.preventDefault();
+    var b = document.createElement("button"); b.type = "button"; b.className = "store-btn";
+    b.dataset.i18n = "⬇ Установить на телефон"; b.textContent = t(b.dataset.i18n);
+    b.onclick = function () { e.prompt(); b.remove(); };
+    slot.appendChild(b);
+  });
+  if (!standalone && /iphone|ipad|ipod/i.test(navigator.userAgent)) {
+    var h = document.createElement("p"); h.className = "install-hint";
+    h.dataset.i18n = "Поставить на телефон: кнопка «Поделиться» в Safari → «На экран „Домой“»."; h.textContent = t(h.dataset.i18n);
+    slot.appendChild(h);
+  }
+})();
+</script>
+</body></html>
