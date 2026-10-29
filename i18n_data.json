@@ -1,0 +1,1255 @@
+{
+  "_": "Переводы названий категорий и групп (price_groups.py) для приложения: русское название → [английское, немецкое]. Тест tests/test_deals_core.py проверяет, что переведены все группы.",
+  "categories": {
+    "Овощи и фрукты": [
+      "Fruit & vegetables",
+      "Obst & Gemüse"
+    ],
+    "Хлеб и выпечка": [
+      "Bread & bakery",
+      "Brot & Gebäck"
+    ],
+    "Молочные продукты и яйца": [
+      "Dairy & eggs",
+      "Milchprodukte & Eier"
+    ],
+    "Сыр": [
+      "Cheese",
+      "Käse"
+    ],
+    "Мясо и птица": [
+      "Meat & poultry",
+      "Fleisch & Geflügel"
+    ],
+    "Колбасы и деликатесы": [
+      "Cold cuts & deli",
+      "Wurst & Feinkost"
+    ],
+    "Рыба и морепродукты": [
+      "Fish & seafood",
+      "Fisch & Meeresfrüchte"
+    ],
+    "Замороженные продукты": [
+      "Frozen food",
+      "Tiefkühlkost"
+    ],
+    "Крупы, макароны, бобовые": [
+      "Grains, pasta, legumes",
+      "Getreide, Nudeln, Hülsenfrüchte"
+    ],
+    "Консервы": [
+      "Canned food",
+      "Konserven"
+    ],
+    "Масло, уксус, соусы": [
+      "Oil, vinegar, sauces",
+      "Öl, Essig, Saucen"
+    ],
+    "Специи и приправы": [
+      "Spices & seasonings",
+      "Gewürze"
+    ],
+    "Для выпечки": [
+      "Baking",
+      "Backen"
+    ],
+    "Орехи, семечки, сухофрукты": [
+      "Nuts, seeds, dried fruit",
+      "Nüsse, Samen, Trockenobst"
+    ],
+    "Сладости и снеки": [
+      "Sweets & snacks",
+      "Süßes & Snacks"
+    ],
+    "Кофе и чай": [
+      "Coffee & tea",
+      "Kaffee & Tee"
+    ],
+    "Бытовая химия и бумага": [
+      "Household & paper",
+      "Haushalt & Papier"
+    ],
+    "Прочее": [
+      "Other",
+      "Sonstiges"
+    ],
+    "Джемы, мёд и сладкие пасты": [
+      "Jams, honey & sweet spreads",
+      "Konfitüren, Honig & Aufstriche"
+    ],
+    "Рождество": [
+      "Christmas",
+      "Weihnachten"
+    ],
+    "Мюсли, хлопья и растительное молоко": [
+      "Muesli, cereal & plant milk",
+      "Müsli, Cerealien & Pflanzendrinks"
+    ],
+    "Дрогерия и гигиена": [
+      "Drugstore & hygiene",
+      "Drogerie & Hygiene"
+    ],
+    "Хэллоуин и осень": [
+      "Halloween & autumn",
+      "Halloween & Herbst"
+    ],
+    "Пасха": [
+      "Easter",
+      "Ostern"
+    ],
+    "Зоотовары": [
+      "Pet supplies",
+      "Tierbedarf"
+    ]
+  },
+  "groups": {
+    "пряники и лебкухен (готовые)": [
+      "gingerbread & Lebkuchen",
+      "Lebkuchen"
+    ],
+    "штоллен": [
+      "stollen",
+      "Stollen"
+    ],
+    "марципан": [
+      "marzipan",
+      "Marzipan"
+    ],
+    "рождественское печенье": [
+      "Christmas cookies",
+      "Weihnachtskekse"
+    ],
+    "орехи в глазури и сладкие": [
+      "candied & coated nuts",
+      "gebrannte & überzogene Nüsse"
+    ],
+    "конфеты и пралине к празднику": [
+      "chocolates & pralines",
+      "Pralinen & Konfekt"
+    ],
+    "джем и конфитюр": [
+      "jam & preserves",
+      "Konfitüre & Marmelade"
+    ],
+    "яйца": [
+      "eggs",
+      "Eier"
+    ],
+    "овсяные хлопья": [
+      "oat flakes",
+      "Haferflocken"
+    ],
+    "молочное с протеином": [
+      "high-protein dairy",
+      "Protein-Milchprodukte"
+    ],
+    "творог": [
+      "quark (Topfen)",
+      "Topfen"
+    ],
+    "зернёный творог": [
+      "cottage cheese",
+      "Hüttenkäse"
+    ],
+    "скир": [
+      "skyr",
+      "Skyr"
+    ],
+    "греческий йогурт": [
+      "Greek yogurt",
+      "griechisches Joghurt"
+    ],
+    "йогурт натуральный": [
+      "plain yogurt",
+      "Naturjoghurt"
+    ],
+    "молоко": [
+      "milk",
+      "Milch"
+    ],
+    "кефир": [
+      "kefir",
+      "Kefir"
+    ],
+    "масло сливочное": [
+      "butter",
+      "Butter"
+    ],
+    "творожный сыр (Frischkäse)": [
+      "cream cheese",
+      "Frischkäse"
+    ],
+    "фета": [
+      "feta",
+      "Feta"
+    ],
+    "моцарелла": [
+      "mozzarella",
+      "Mozzarella"
+    ],
+    "пармезан / грана": [
+      "parmesan / grana",
+      "Parmesan / Grana"
+    ],
+    "сыр твёрдый и полутвёрдый": [
+      "hard & semi-hard cheese",
+      "Hart- & Schnittkäse"
+    ],
+    "индейка филе": [
+      "turkey breast fillet",
+      "Putenbrustfilet"
+    ],
+    "индейка бедро / голень": [
+      "turkey thigh / drumstick",
+      "Putenoberkeule / Unterkeule"
+    ],
+    "индейка крылья": [
+      "turkey wings",
+      "Putenflügel"
+    ],
+    "фарш из птицы": [
+      "ground poultry",
+      "Geflügelfaschiertes"
+    ],
+    "куриные сердечки": [
+      "chicken hearts",
+      "Hühnerherzen"
+    ],
+    "куриные желудки": [
+      "chicken gizzards",
+      "Hühnermägen"
+    ],
+    "куриная печень": [
+      "chicken liver",
+      "Hühnerleber"
+    ],
+    "куриные шейки": [
+      "chicken necks",
+      "Hühnerhälse"
+    ],
+    "куриное филе": [
+      "chicken breast fillet",
+      "Hühnerbrustfilet"
+    ],
+    "куриные крылья": [
+      "chicken wings",
+      "Hühnerflügel"
+    ],
+    "куриные голени": [
+      "chicken drumsticks",
+      "Hühnerunterkeulen"
+    ],
+    "куриные бёдра и окорочка": [
+      "chicken thighs & legs",
+      "Hühnerkeulen"
+    ],
+    "курица целая": [
+      "whole chicken",
+      "ganzes Huhn"
+    ],
+    "кролик": [
+      "rabbit",
+      "Kaninchen"
+    ],
+    "говядина (гуляш, куском)": [
+      "beef (goulash, whole cuts)",
+      "Rindfleisch (Gulasch, Stück)"
+    ],
+    "кости и хвосты (для бульона, холодца)": [
+      "bones & oxtail (for broth)",
+      "Knochen & Ochsenschwanz (für Suppe)"
+    ],
+    "гусь": [
+      "goose",
+      "Gans"
+    ],
+    "утка": [
+      "duck",
+      "Ente"
+    ],
+    "фарш говяжий": [
+      "ground beef",
+      "Rindsfaschiertes"
+    ],
+    "фарш смешанный": [
+      "mixed ground meat",
+      "gemischtes Faschiertes"
+    ],
+    "лосось копчёный": [
+      "smoked salmon",
+      "Räucherlachs"
+    ],
+    "лосось филе": [
+      "salmon fillet",
+      "Lachsfilet"
+    ],
+    "форель копчёная": [
+      "smoked trout",
+      "Räucherforelle"
+    ],
+    "форель филе": [
+      "trout fillet",
+      "Forellenfilet"
+    ],
+    "форель целая": [
+      "whole trout",
+      "ganze Forelle"
+    ],
+    "скумбрия копчёная": [
+      "smoked mackerel",
+      "Räuchermakrele"
+    ],
+    "скумбрия консервы": [
+      "canned mackerel",
+      "Makrelenkonserve"
+    ],
+    "сельдь": [
+      "herring",
+      "Hering"
+    ],
+    "сардины": [
+      "sardines",
+      "Sardinen"
+    ],
+    "тунец консервы": [
+      "canned tuna",
+      "Thunfischkonserve"
+    ],
+    "белая рыба филе": [
+      "white fish fillet",
+      "Weißfischfilet"
+    ],
+    "креветки": [
+      "shrimp",
+      "Garnelen"
+    ],
+    "кальмар": [
+      "squid",
+      "Tintenfisch"
+    ],
+    "чечевица": [
+      "lentils",
+      "Linsen"
+    ],
+    "нут": [
+      "chickpeas",
+      "Kichererbsen"
+    ],
+    "фасоль": [
+      "beans",
+      "Bohnen"
+    ],
+    "гречка": [
+      "buckwheat",
+      "Buchweizen"
+    ],
+    "пшено": [
+      "millet",
+      "Hirse"
+    ],
+    "киноа": [
+      "quinoa",
+      "Quinoa"
+    ],
+    "булгур": [
+      "bulgur",
+      "Bulgur"
+    ],
+    "рис бурый": [
+      "brown rice",
+      "Naturreis"
+    ],
+    "паста цельнозерновая": [
+      "whole-wheat pasta",
+      "Vollkornnudeln"
+    ],
+    "рис": [
+      "rice",
+      "Reis"
+    ],
+    "паста": [
+      "pasta",
+      "Nudeln"
+    ],
+    "кускус": [
+      "couscous",
+      "Couscous"
+    ],
+    "полента / кукурузная крупа": [
+      "polenta / cornmeal",
+      "Polenta / Maisgrieß"
+    ],
+    "мука": [
+      "flour",
+      "Mehl"
+    ],
+    "тофу": [
+      "tofu",
+      "Tofu"
+    ],
+    "тыква": [
+      "pumpkin",
+      "Kürbis"
+    ],
+    "квашеная капуста": [
+      "sauerkraut",
+      "Sauerkraut"
+    ],
+    "капуста белокочанная": [
+      "white cabbage",
+      "Weißkraut"
+    ],
+    "капуста краснокочанная": [
+      "red cabbage",
+      "Rotkraut"
+    ],
+    "капуста": [
+      "cabbage",
+      "Kraut"
+    ],
+    "морковь": [
+      "carrots",
+      "Karotten"
+    ],
+    "батат": [
+      "sweet potatoes",
+      "Süßkartoffeln"
+    ],
+    "картофель": [
+      "potatoes",
+      "Kartoffeln"
+    ],
+    "кабачок": [
+      "zucchini",
+      "Zucchini"
+    ],
+    "брокколи": [
+      "broccoli",
+      "Brokkoli"
+    ],
+    "цветная капуста": [
+      "cauliflower",
+      "Karfiol"
+    ],
+    "свёкла": [
+      "beetroot",
+      "Rote Rüben"
+    ],
+    "лук репчатый": [
+      "onions",
+      "Zwiebeln"
+    ],
+    "паприка молотая": [
+      "ground paprika",
+      "Paprikapulver"
+    ],
+    "перец сладкий": [
+      "bell peppers",
+      "Paprika"
+    ],
+    "маринованные огурцы": [
+      "pickled gherkins",
+      "Essiggurken"
+    ],
+    "майонез": [
+      "mayonnaise",
+      "Mayonnaise"
+    ],
+    "пассата (протёртые томаты)": [
+      "passata",
+      "passierte Tomaten"
+    ],
+    "томаты консервы (кусочки, очищенные)": [
+      "canned tomatoes",
+      "Tomatenkonserve (gehackt, geschält)"
+    ],
+    "томаты свежие": [
+      "fresh tomatoes",
+      "Tomaten"
+    ],
+    "смесь перцев": [
+      "mixed peppercorns",
+      "Pfeffermischung"
+    ],
+    "перец чёрный": [
+      "black pepper",
+      "schwarzer Pfeffer"
+    ],
+    "перец белый": [
+      "white pepper",
+      "weißer Pfeffer"
+    ],
+    "чили / кайенский перец": [
+      "chili / cayenne",
+      "Chili / Cayennepfeffer"
+    ],
+    "паприка копчёная": [
+      "smoked paprika",
+      "geräuchertes Paprikapulver"
+    ],
+    "тмин (Kümmel)": [
+      "caraway",
+      "Kümmel"
+    ],
+    "зира / кумин (Kreuzkümmel)": [
+      "cumin",
+      "Kreuzkümmel"
+    ],
+    "корица": [
+      "cinnamon",
+      "Zimt"
+    ],
+    "куркума": [
+      "turmeric",
+      "Kurkuma"
+    ],
+    "имбирь молотый": [
+      "ground ginger",
+      "Ingwerpulver"
+    ],
+    "кардамон": [
+      "cardamom",
+      "Kardamom"
+    ],
+    "гвоздика": [
+      "cloves",
+      "Gewürznelken"
+    ],
+    "перец душистый": [
+      "allspice",
+      "Piment"
+    ],
+    "бадьян / анис": [
+      "star anise / anise",
+      "Sternanis / Anis"
+    ],
+    "кориандр": [
+      "coriander",
+      "Koriander"
+    ],
+    "мускатный орех": [
+      "nutmeg",
+      "Muskatnuss"
+    ],
+    "карри / гарам масала": [
+      "curry / garam masala",
+      "Curry / Garam Masala"
+    ],
+    "имбирно-пряничная смесь (Lebkuchengewürz)": [
+      "gingerbread spice",
+      "Lebkuchengewürz"
+    ],
+    "лавровый лист": [
+      "bay leaves",
+      "Lorbeerblätter"
+    ],
+    "чеснок сушёный": [
+      "dried garlic",
+      "Knoblauchgranulat"
+    ],
+    "сушёные травы": [
+      "dried herbs",
+      "getrocknete Kräuter"
+    ],
+    "зелень замороженная": [
+      "frozen herbs",
+      "TK-Kräuter"
+    ],
+    "соль": [
+      "salt",
+      "Salz"
+    ],
+    "сахар": [
+      "sugar",
+      "Zucker"
+    ],
+    "лисички": [
+      "chanterelles",
+      "Eierschwammerl"
+    ],
+    "шампиньоны": [
+      "mushrooms",
+      "Champignons"
+    ],
+    "стручковая фасоль": [
+      "green beans",
+      "Fisolen"
+    ],
+    "шпинат свежий": [
+      "fresh spinach",
+      "Blattspinat frisch"
+    ],
+    "шпинат замороженный": [
+      "frozen spinach",
+      "TK-Spinat"
+    ],
+    "овощи замороженные и смеси": [
+      "frozen vegetables",
+      "TK-Gemüse"
+    ],
+    "горошек консервированный": [
+      "canned peas",
+      "Erbsen (Dose)"
+    ],
+    "ягоды и фрукты замороженные": [
+      "frozen berries & fruit",
+      "TK-Beeren & Obst"
+    ],
+    "ягоды свежие": [
+      "fresh berries",
+      "frische Beeren"
+    ],
+    "авокадо": [
+      "avocado",
+      "Avocado"
+    ],
+    "яблоки": [
+      "apples",
+      "Äpfel"
+    ],
+    "груши": [
+      "pears",
+      "Birnen"
+    ],
+    "бананы": [
+      "bananas",
+      "Bananen"
+    ],
+    "лимоны": [
+      "lemons",
+      "Zitronen"
+    ],
+    "мандарины": [
+      "mandarins",
+      "Mandarinen"
+    ],
+    "апельсины": [
+      "oranges",
+      "Orangen"
+    ],
+    "оливковое масло": [
+      "olive oil",
+      "Olivenöl"
+    ],
+    "рапсовое масло": [
+      "rapeseed oil",
+      "Rapsöl"
+    ],
+    "кукурузное масло": [
+      "corn oil",
+      "Maiskeimöl"
+    ],
+    "подсолнечное масло": [
+      "sunflower oil",
+      "Sonnenblumenöl"
+    ],
+    "грецкие орехи": [
+      "walnuts",
+      "Walnüsse"
+    ],
+    "миндаль": [
+      "almonds",
+      "Mandeln"
+    ],
+    "фундук": [
+      "hazelnuts",
+      "Haselnüsse"
+    ],
+    "кешью": [
+      "cashews",
+      "Cashews"
+    ],
+    "арахис": [
+      "peanuts",
+      "Erdnüsse"
+    ],
+    "смесь орехов": [
+      "mixed nuts",
+      "Nussmischung"
+    ],
+    "семена тыквы": [
+      "pumpkin seeds",
+      "Kürbiskerne"
+    ],
+    "семена подсолнечника": [
+      "sunflower seeds",
+      "Sonnenblumenkerne"
+    ],
+    "семена льна": [
+      "flax seeds",
+      "Leinsamen"
+    ],
+    "семена чиа": [
+      "chia seeds",
+      "Chiasamen"
+    ],
+    "кунжут": [
+      "sesame",
+      "Sesam"
+    ],
+    "семена конопли": [
+      "hemp seeds",
+      "Hanfsamen"
+    ],
+    "хлебцы (кнеккеброт)": [
+      "crispbread",
+      "Knäckebrot"
+    ],
+    "хлеб": [
+      "bread",
+      "Brot"
+    ],
+    "выпечка сладкая": [
+      "sweet pastries",
+      "süßes Gebäck"
+    ],
+    "булочки": [
+      "rolls",
+      "Gebäck (Semmeln)"
+    ],
+    "печенье": [
+      "cookies",
+      "Kekse"
+    ],
+    "шоколад для выпечки": [
+      "baking chocolate",
+      "Kochschokolade"
+    ],
+    "шоколад тёмный": [
+      "dark chocolate",
+      "Zartbitterschokolade"
+    ],
+    "шоколад молочный": [
+      "milk chocolate",
+      "Milchschokolade"
+    ],
+    "кленовый сироп": [
+      "maple syrup",
+      "Ahornsirup"
+    ],
+    "сиропы без сахара (0 ккал)": [
+      "sugar-free syrups",
+      "zuckerfreie Sirupe"
+    ],
+    "кокосовое молоко": [
+      "coconut milk",
+      "Kokosmilch"
+    ],
+    "чай листовой": [
+      "loose-leaf tea",
+      "loser Tee"
+    ],
+    "кофе молотый": [
+      "ground coffee",
+      "gemahlener Kaffee"
+    ],
+    "кофе в зёрнах": [
+      "coffee beans",
+      "Kaffeebohnen"
+    ],
+    "ветчина варёная": [
+      "cooked ham",
+      "Kochschinken"
+    ],
+    "хамон / прошутто": [
+      "jamón / prosciutto",
+      "Rohschinken"
+    ],
+    "сосиски и сардельки": [
+      "sausages",
+      "Würstel"
+    ],
+    "сало / шпик / бекон": [
+      "bacon / Speck",
+      "Speck"
+    ],
+    "соевый соус": [
+      "soy sauce",
+      "Sojasauce"
+    ],
+    "соус терияки / азиатские соусы": [
+      "teriyaki & Asian sauces",
+      "Teriyaki & asiatische Saucen"
+    ],
+    "соус барбекю / для гриля": [
+      "BBQ sauce",
+      "Grill- & BBQ-Sauce"
+    ],
+    "острые соусы": [
+      "hot sauces",
+      "scharfe Saucen"
+    ],
+    "маринады готовые": [
+      "ready marinades",
+      "fertige Marinaden"
+    ],
+    "горчица": [
+      "mustard",
+      "Senf"
+    ],
+    "кетчуп": [
+      "ketchup",
+      "Ketchup"
+    ],
+    "песто": [
+      "pesto",
+      "Pesto"
+    ],
+    "паста карри": [
+      "curry paste",
+      "Currypaste"
+    ],
+    "бальзамический уксус": [
+      "balsamic vinegar",
+      "Balsamico"
+    ],
+    "тесто слоёное (Blätterteig)": [
+      "puff pastry",
+      "Blätterteig"
+    ],
+    "тесто песочное (Mürbteig)": [
+      "shortcrust pastry",
+      "Mürbteig"
+    ],
+    "тесто дрожжевое (Germteig)": [
+      "yeast dough",
+      "Germteig"
+    ],
+    "тесто для пиццы": [
+      "pizza dough",
+      "Pizzateig"
+    ],
+    "тесто для штруделя / фило": [
+      "strudel / filo dough",
+      "Strudelteig / Filo"
+    ],
+    "тесто круассанное": [
+      "croissant dough",
+      "Croissantteig"
+    ],
+    "желатин": [
+      "gelatin",
+      "Gelatine"
+    ],
+    "сметана (Sauerrahm)": [
+      "sour cream",
+      "Sauerrahm"
+    ],
+    "сахарная пудра": [
+      "icing sugar",
+      "Staubzucker"
+    ],
+    "какао-порошок (чистый)": [
+      "cocoa powder",
+      "Kakaopulver"
+    ],
+    "маршмеллоу": [
+      "marshmallows",
+      "Marshmallows"
+    ],
+    "бумага для выпечки": [
+      "baking paper",
+      "Backpapier"
+    ],
+    "фольга алюминиевая": [
+      "aluminium foil",
+      "Alufolie"
+    ],
+    "туалетная бумага": [
+      "toilet paper",
+      "Toilettenpapier"
+    ],
+    "бумажные кухонные полотенца": [
+      "paper towels",
+      "Küchenrolle"
+    ],
+    "средство для мытья посуды": [
+      "dish soap",
+      "Geschirrspülmittel"
+    ],
+    "жидкое мыло для рук": [
+      "liquid hand soap",
+      "Flüssigseife"
+    ],
+    "средство для стирки (гель/порошок/капсулы)": [
+      "laundry detergent",
+      "Waschmittel"
+    ],
+    "пятновыводитель / отбеливатель (порошок)": [
+      "stain remover (powder)",
+      "Fleckentferner (Pulver)"
+    ],
+    "пятновыводитель / отбеливатель (спрей, гель)": [
+      "stain remover (spray, gel)",
+      "Fleckentferner (Spray, Gel)"
+    ],
+    "средство для унитаза": [
+      "toilet cleaner",
+      "WC-Reiniger"
+    ],
+    "средство для кухни (от жира)": [
+      "kitchen degreaser",
+      "Küchenreiniger"
+    ],
+    "средство для ванной / от извести": [
+      "bathroom & limescale cleaner",
+      "Bad- & Kalkreiniger"
+    ],
+    "универсальное чистящее средство": [
+      "all-purpose cleaner",
+      "Allzweckreiniger"
+    ],
+    "средство от накипи (чайник, кофемашина)": [
+      "descaler",
+      "Entkalker"
+    ],
+    "лимонная кислота": [
+      "citric acid",
+      "Zitronensäure"
+    ],
+    "средство для стеклокерамики": [
+      "ceramic hob cleaner",
+      "Glaskeramik-Reiniger"
+    ],
+    "губки для посуды": [
+      "dish sponges",
+      "Schwämme"
+    ],
+    "хэллоуин": [
+      "Halloween",
+      "Halloween"
+    ],
+    "осенний декор": [
+      "autumn decor",
+      "Herbstdeko"
+    ],
+    "пасха": [
+      "Easter",
+      "Ostern"
+    ],
+    "адвент-календари": [
+      "advent calendars",
+      "Adventkalender"
+    ],
+    "рождественские подарки и декор": [
+      "Christmas gifts & decor",
+      "Weihnachtsgeschenke & Deko"
+    ],
+    "мёд": [
+      "honey",
+      "Honig"
+    ],
+    "ореховые и шоколадные пасты": [
+      "nut & chocolate spreads",
+      "Nuss- & Schokoaufstriche"
+    ],
+    "мюсли и хлопья": [
+      "muesli & cereal",
+      "Müsli & Cerealien"
+    ],
+    "растительное молоко": [
+      "plant-based milk",
+      "Pflanzendrinks"
+    ],
+    "картофель фри и изделия": [
+      "fries & potato products",
+      "Pommes & Kartoffelprodukte"
+    ],
+    "рыбные палочки и рыба в панировке": [
+      "fish fingers & breaded fish",
+      "Fischstäbchen & panierter Fisch"
+    ],
+    "пицца замороженная": [
+      "frozen pizza",
+      "TK-Pizza"
+    ],
+    "свинина": [
+      "pork",
+      "Schweinefleisch"
+    ],
+    "баранина": [
+      "lamb",
+      "Lammfleisch"
+    ],
+    "сливки": [
+      "cream",
+      "Obers & Sahne"
+    ],
+    "маскарпоне": [
+      "mascarpone",
+      "Mascarpone"
+    ],
+    "рикотта": [
+      "ricotta",
+      "Ricotta"
+    ],
+    "камамбер и бри": [
+      "camembert & brie",
+      "Camembert & Brie"
+    ],
+    "голубые сыры": [
+      "blue cheese",
+      "Blauschimmelkäse"
+    ],
+    "плавленый сыр": [
+      "processed cheese",
+      "Schmelzkäse"
+    ],
+    "йогурт с наполнителем": [
+      "flavoured yogurt",
+      "Fruchtjoghurt"
+    ],
+    "зелень и салаты": [
+      "fresh herbs & salad",
+      "frische Kräuter & Salate"
+    ],
+    "огурцы": [
+      "cucumbers",
+      "Gurken"
+    ],
+    "чеснок свежий": [
+      "fresh garlic",
+      "Knoblauch"
+    ],
+    "имбирь свежий": [
+      "fresh ginger",
+      "Ingwer"
+    ],
+    "порей": [
+      "leeks & spring onions",
+      "Lauch & Jungzwiebeln"
+    ],
+    "сельдерей": [
+      "celery",
+      "Sellerie"
+    ],
+    "фенхель": [
+      "fennel",
+      "Fenchel"
+    ],
+    "баклажан": [
+      "aubergine",
+      "Melanzani"
+    ],
+    "редис и редька": [
+      "radish",
+      "Radieschen & Rettich"
+    ],
+    "кольраби": [
+      "kohlrabi",
+      "Kohlrabi"
+    ],
+    "виноград": [
+      "grapes",
+      "Weintrauben"
+    ],
+    "киви": [
+      "kiwi",
+      "Kiwi"
+    ],
+    "сливы": [
+      "plums",
+      "Zwetschken"
+    ],
+    "хурма": [
+      "persimmon",
+      "Kaki"
+    ],
+    "ананас": [
+      "pineapple",
+      "Ananas"
+    ],
+    "манго": [
+      "mango",
+      "Mango"
+    ],
+    "гранат": [
+      "pomegranate",
+      "Granatapfel"
+    ],
+    "дыня и арбуз": [
+      "melons",
+      "Melonen"
+    ],
+    "персики и нектарины": [
+      "peaches & nectarines",
+      "Pfirsiche & Nektarinen"
+    ],
+    "уксус": [
+      "vinegar",
+      "Essig"
+    ],
+    "бульон и суповые кубики": [
+      "stock & bouillon",
+      "Suppenwürfel & Brühe"
+    ],
+    "соусы для пасты": [
+      "pasta sauces",
+      "Pastasaucen"
+    ],
+    "оливки": [
+      "olives",
+      "Oliven"
+    ],
+    "кукуруза консервированная": [
+      "canned corn",
+      "Mais (Dose)"
+    ],
+    "дрожжи": [
+      "yeast",
+      "Germ"
+    ],
+    "разрыхлитель и сода": [
+      "baking powder & soda",
+      "Backpulver & Natron"
+    ],
+    "ванильный сахар": [
+      "vanilla sugar",
+      "Vanillezucker"
+    ],
+    "крахмал": [
+      "starch",
+      "Stärke"
+    ],
+    "манка": [
+      "semolina",
+      "Grieß"
+    ],
+    "мешки для мусора": [
+      "bin bags",
+      "Müllbeutel"
+    ],
+    "пакеты для заморозки": [
+      "freezer bags",
+      "Gefrierbeutel"
+    ],
+    "пищевая плёнка": [
+      "cling film",
+      "Frischhaltefolie"
+    ],
+    "бумажные платочки": [
+      "tissues",
+      "Taschentücher"
+    ],
+    "салфетки бумажные": [
+      "paper napkins",
+      "Servietten"
+    ],
+    "зубная паста": [
+      "toothpaste",
+      "Zahnpasta"
+    ],
+    "зубные щётки": [
+      "toothbrushes",
+      "Zahnbürsten"
+    ],
+    "шампунь": [
+      "shampoo",
+      "Shampoo"
+    ],
+    "кондиционер для волос": [
+      "conditioner",
+      "Spülung"
+    ],
+    "гель для душа": [
+      "shower gel",
+      "Duschgel"
+    ],
+    "дезодорант": [
+      "deodorant",
+      "Deo"
+    ],
+    "крем и лосьон для тела": [
+      "body lotion & cream",
+      "Bodylotion & Creme"
+    ],
+    "прокладки и тампоны": [
+      "pads & tampons",
+      "Binden & Tampons"
+    ],
+    "подгузники": [
+      "nappies",
+      "Windeln"
+    ],
+    "ватные диски и палочки": [
+      "cotton pads & buds",
+      "Wattepads & Wattestäbchen"
+    ],
+    "бритвы и лезвия": [
+      "razors & blades",
+      "Rasierer & Klingen"
+    ],
+    "влажные салфетки": [
+      "wet wipes",
+      "Feuchttücher"
+    ],
+    "корм для кошек сухой": [
+      "cat food, dry",
+      "Katzenfutter, trocken"
+    ],
+    "корм для кошек влажный": [
+      "cat food, wet",
+      "Katzenfutter, nass"
+    ],
+    "лакомства для кошек": [
+      "cat treats",
+      "Katzensnacks"
+    ],
+    "корм для собак сухой": [
+      "dog food, dry",
+      "Hundefutter, trocken"
+    ],
+    "корм для собак влажный": [
+      "dog food, wet",
+      "Hundefutter, nass"
+    ],
+    "лакомства для собак": [
+      "dog treats",
+      "Hundesnacks"
+    ],
+    "наполнитель для кошачьего туалета": [
+      "cat litter",
+      "Katzenstreu"
+    ],
+    "наполнитель для кошачьего туалета (на вес)": [
+      "cat litter (by weight)",
+      "Katzenstreu (nach Gewicht)"
+    ],
+    "корм для птиц": [
+      "bird food",
+      "Vogelfutter"
+    ],
+    "корм для грызунов": [
+      "small animal food",
+      "Nagerfutter"
+    ],
+    "эмменталь": [
+      "Emmental",
+      "Emmentaler"
+    ],
+    "гауда": [
+      "Gouda",
+      "Gouda"
+    ],
+    "эдамер": [
+      "Edam",
+      "Edamer"
+    ],
+    "тильзитер": [
+      "Tilsit",
+      "Tilsiter"
+    ],
+    "бергкезе и альпийские сыры": [
+      "Bergkäse & alpine cheese",
+      "Bergkäse & Almkäse"
+    ],
+    "брюссельская капуста": [
+      "Brussels sprouts",
+      "Kohlsprossen"
+    ],
+    "пекинская капуста": [
+      "Chinese cabbage",
+      "Chinakohl"
+    ]
+  }
+}
